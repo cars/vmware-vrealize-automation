@@ -264,8 +264,13 @@ public class Request  {
 
         String templateURL = linkArray.get(0).getAsJsonObject().get("href").getAsString();
 
-        String url = templateURL;
-        System.out.println("Get BP Template: "+templateURL);
+        System.out.println("Get BP Template(Raw): "+templateURL);
+        // vRA Returns funky URL for the templateURL: 
+        // ex:  https://vraurl/catalog-service/api/consumer/entitledCatalogItems/d4d3a87f-063d-44af-84bf-dcaa205b48c1/requests/template{?businessGroupId,requestedFor}
+        // so strip off the bits after the '{' to get a workable URL
+        String url = templateURL.split("\\{")[0];
+        System.out.println("Get BP Template(Revised): "+url);
+        
 
         HttpResponse vRAResponse = restclient.Get(url);
         String responseAsJson = restclient.FormatResponseAsJsonString(vRAResponse);

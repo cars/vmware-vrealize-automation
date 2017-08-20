@@ -6,7 +6,7 @@ import com.inkysea.vmware.vra.jenkins.plugin.model.ExecutionStatus;
 import java.util.Properties;
 import java.io.IOException;
 import java.io.InputStream;
-
+import groovy.util.ConfigSlurper;
 
 /**
  * Created by kthieler on 2/23/16.
@@ -15,48 +15,35 @@ class RequestTest extends GroovyTestCase {
 
     private PluginParam params;
     private PrintStream logger;
-
+    private ConfigObject testConfig;
 
 
     RequestTest() {
 
-        Properties prop = new Properties();
-        InputStream input = null;
-
         try {
 
-            String filename = "config.properties";
-            input = getClass().getClassLoader().getResourceAsStream(filename);
-            if(input==null){
-                System.out.println("Sorry, unable to find " + filename);
-                return;
-            }
-
-            prop.load(input);
-            this.params = new PluginParam(prop.getProperty("vRAURL"),
-                                        prop.getProperty("userName"),
-                                        prop.getProperty("password"),
-                                        prop.getProperty("tenant"),
-                                        prop.getProperty("bluePrintName"),
-                                        prop.getProperty("waitExec"))
+            testConfig = new ConfigSlurper().parse(new File('src/test/resources/config.properties').toURL());
+            this.params = new PluginParam(testConfig.vRAURL,
+                    testConfig.userName,
+                    testConfig.password,
+                    testConfig.tenant,
+                    testConfig.bluePrintName,
+                    testConfig.waitExec,
+                    false,
+                    null
+            )                             
 
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally{
-            if(input!=null){
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+ 
         }
     }
 
 
     @Test
     public void testfetchBlueprint() {
-        Request request = new Request(logger, params)
+        Request request = new Request(logger, params);
         def token = request.fetchBluePrint();
         logger.println(token)
     }

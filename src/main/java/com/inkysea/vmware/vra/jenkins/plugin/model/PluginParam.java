@@ -47,7 +47,8 @@ public class PluginParam  extends AbstractDescribableImpl<PluginParam> implement
         this.requestTemplate = requestTemplate;
         this.requestParams = requestParams;
 
-    }
+    };
+    
 
     public String getServerUrl() {
         return serverUrl;

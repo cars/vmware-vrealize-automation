@@ -12,7 +12,7 @@ class BlueprintTest extends GroovyTestCase {
 
     private BlueprintParam params;
     private PrintStream logger;
-
+    private ConfigObject testConfig;
 
     protected List<Deployment> deployments = new ArrayList<Deployment>();
     private String cpu = "{ \"data\":{\"CentOS7\":{\"data\":{\"cpu\":2}}}}";
@@ -21,40 +21,27 @@ class BlueprintTest extends GroovyTestCase {
 
     BlueprintTest() {
 
-        Properties prop = new Properties();
-        InputStream input = null;
+        //Properties prop = new Properties();
+        //InputStream input = null;
 
         try {
 
-            String filename = "config.properties";
-
-            input =  this.getClass().getClassLoader().getResourceAsStream(filename);
-
-            if(input==null){
-                System.out.println("Sorry, unable to find " + filename);
-                return;
-            }
-
-            prop.load(input);
-            this.params = new BlueprintParam(prop.getProperty("vRAURL"),
-                    prop.getProperty("userName"),
-                    prop.getProperty("password"),
-                    prop.getProperty("tenant"),
-                    prop.getProperty("bluePrintName"),
-                    Boolean.valueOf(prop.getProperty("packageBlueprint")),
-                    prop.getProperty("blueprintPath"),
-                    Boolean.valueOf(prop.getProperty("overWrite").asBoolean()));
+            testConfig = new ConfigSlurper().parse(new File('src/test/resources/config.properties').toURL());
+  
+            this.params = new BlueprintParam(testConfig.vRAURL,
+                    testConfig.userName,
+                    testConfig.password,
+                    testConfig.tenant,
+                    false,  //packageBlueprint
+                    "", //blueprintPath
+                    true, //overWrite
+                    true, //publishBlueprint
+                    "Containers") //serviceCategory
 
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally{
-            if(input!=null){
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+
         }
     }
 

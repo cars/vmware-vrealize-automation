@@ -1,8 +1,8 @@
 package com.inkysea.vmware.vra.jenkins.plugin.model
 
 import groovy.util.GroovyTestCase;
+import groovy.util.ConfigSlurper;
 import org.junit.Test;
-
 
 /**
  * Created by kthieler on 2/23/16.
@@ -11,42 +11,30 @@ class RestClientTest extends GroovyTestCase  {
 
     private PluginParam params;
     private PrintStream logger;
-
+    private ConfigObject testConfig;
 
     RestClientTest() {
 
         this.logger = logger;
-
-        Properties prop = new Properties();
-        InputStream input = null;
-
+        System.out.println("starting rest client test");
+      
         try {
 
-            String filename = "config.properties";
-            input = getClass().getClassLoader().getResourceAsStream(filename);
-            if(input==null){
-                System.out.println("Sorry, unable to find " + filename);
-                return;
-            }
-
-            prop.load(input);
-            this.params = new PluginParam(prop.getProperty("vRAURL"),
-                    prop.getProperty("userName"),
-                    prop.getProperty("password"),
-                    prop.getProperty("tenant"),
-                    prop.getProperty("bluePrintName"),
-                    prop.getProperty("waitExec"))
-
+            testConfig = new ConfigSlurper().parse(new File('src/test/resources/config.properties').toURL());
+            this.params = new PluginParam(testConfig.vRAURL,
+                    testConfig.userName,
+                    testConfig.password,
+                    testConfig.tenant,
+                    testConfig.bluePrintName,
+                    testConfig.waitExec,
+                    false,
+                    null
+            )
+ 
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally{
-            if(input!=null){
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+ 
         }
     }
 

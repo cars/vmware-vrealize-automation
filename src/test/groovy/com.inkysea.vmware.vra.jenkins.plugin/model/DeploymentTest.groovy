@@ -3,6 +3,7 @@ package com.inkysea.vmware.vra.jenkins.plugin.model
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import org.junit.Test
+import groovy.util.ConfigSlurper;
 
 /**
  * Created by kthieler on 2/23/16.
@@ -13,7 +14,7 @@ class DeploymentTest extends GroovyTestCase {
     private RequestParam rParams;
 
     private PrintStream logger;
-
+    private ConfigObject testConfig;
 
     protected List<Deployment> deployments = new ArrayList<Deployment>();
     private String cpu = "{ \"data\":{\"CentOS7\":{\"data\":{\"cpu\":2}}}}";
@@ -23,44 +24,28 @@ class DeploymentTest extends GroovyTestCase {
 
     DeploymentTest() {
 
-        Properties prop = new Properties();
-        InputStream input = null;
-
+        
         try {
 
-            String filename = "config.properties";
-            input = getClass().getClassLoader().getResourceAsStream(filename);
-            if(input==null){
-                System.out.println("Sorry, unable to find " + filename);
-                return;
-            }
-
-            prop.load(input);
-
-            this.rParams = new RequestParam(prop.getProperty("requestParam"))
+            testConfig = new ConfigSlurper().parse(new File('src/test/resources/config.properties').toURL());
+            //this.rParams = new RequestParam(prop.getProperty("requestParam"))
+            this.rParams = new RequestParam(testConfig.requestParam)
             this.requestParam.add(rParams)
-
-            this.params = new PluginParam(prop.getProperty("vRAURL"),
-                    prop.getProperty("userName"),
-                    prop.getProperty("password"),
-                    prop.getProperty("tenant"),
-                    prop.getProperty("bluePrintName"),
-                    Boolean.parseBoolean(prop.getProperty("waitExec")),
-                    Boolean.parseBoolean(prop.getProperty("blueprintTemplate")),
+            this.params = new PluginParam(testConfig.vRAURL,
+                    testConfig.userName,
+                    testConfig.password,
+                    testConfig.tenant,
+                    testConfig.bluePrintName,
+                    testConfig.waitExec,
+                    false,
                     this.requestParam
-            );
+            )
 
 
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally{
-            if(input!=null){
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+
         }
     }
 
