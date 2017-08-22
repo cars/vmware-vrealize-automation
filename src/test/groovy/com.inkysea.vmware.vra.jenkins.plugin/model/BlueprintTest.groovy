@@ -33,10 +33,10 @@ class BlueprintTest extends GroovyTestCase {
                     testConfig.password,
                     testConfig.tenant,
                     false,  //packageBlueprint
-                    "", //blueprintPath
+                    testConfig.blueprintPath, //blueprintPath
                     true, //overWrite
                     true, //publishBlueprint
-                    "Containers") //serviceCategory
+                    testConfig.blueprintServiceCategory) //serviceCategory
 
         } catch (IOException ex) {
             ex.printStackTrace();

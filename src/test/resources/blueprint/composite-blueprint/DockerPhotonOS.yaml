@@ -1,0 +1,114 @@
+id: DockerPhotonOS
+name: Docker - PhotonOS
+description: Sample template for provisioning Docker hosts for Bellevue
+status: PUBLISHED
+properties:
+  _archiveDays: 0
+components:
+  vSphere_Machine_1:
+    type: Infrastructure.CatalogItem.Machine.Virtual.vSphere
+    data:
+      Container:
+        fixed: App.Container
+        required: false
+        secured: false
+        visible: false
+      Container.Auth.Password:
+        fixed: ''
+        required: false
+        secured: true
+        visible: false
+      Container.Auth.PrivateKey:
+        fixed: ''
+        required: false
+        secured: true
+        visible: false
+      Container.Auth.PublicKey:
+        fixed: ''
+        required: false
+        secured: false
+        visible: false
+      Container.Auth.User:
+        fixed: ''
+        required: false
+        secured: false
+        visible: false
+      Container.Connection.Port:
+        fixed: '2376'
+        required: false
+        secured: false
+        visible: false
+      Container.Connection.Protocol:
+        fixed: API
+        required: false
+        secured: false
+        visible: false
+      Container.Connection.Scheme:
+        fixed: https
+        required: false
+        secured: false
+        visible: false
+      Extensibility.Lifecycle.Properties.VMPSMasterWorkflow32.Disposing:
+        default: Container*
+        required: false
+        secured: false
+        visible: false
+      Extensibility.Lifecycle.Properties.VMPSMasterWorkflow32.MachineActivated:
+        default: Container*
+        required: false
+        secured: false
+        visible: false
+      VirtualMachine.Admin.ThinProvision:
+        default: 'True'
+        required: false
+        secured: false
+        visible: false
+      _cluster:
+        default: 1
+        max: 1
+        min: 1
+      action:
+        fixed: FullClone
+      allow_storage_policies:
+        fixed: false
+      blueprint_type:
+        fixed: '1'
+      cpu:
+        default: 2
+        max: 2
+        min: 2
+      disks:
+      - capacity: 20
+        id: 1452601386601
+        initial_location: ''
+        is_clone: true
+        label: Hard disk 1
+        storage_reservation_policy: ''
+        userCreated: false
+        volumeId: 0
+      display_location:
+        fixed: false
+      max_network_adapters: {}
+      max_volumes: {}
+      memory:
+        default: 2048
+        max: 2048
+        min: 2048
+      provisioning_workflow:
+        fixed:
+          id: CloneWorkflow
+          label: CloneWorkflow
+      security_groups: []
+      security_tags: []
+      source_machine:
+        fixed:
+          id: 486e58c7-2420-479d-9d2c-b3017c08b540
+          label: Photon Template Bellevue
+      source_machine_name:
+        fixed: photon-template-bellevue
+      storage:
+        default: 20
+        max: 20
+        min: 20
+layout:
+  vSphere_Machine_1: 0,0
