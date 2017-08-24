@@ -8,21 +8,18 @@ import groovy.util.GroovyTestCase;
 /**
  * Created by kthieler on 2/23/16.
  */
-class BlueprintTest extends GroovyTestCase {
+class BlueprintParamTest extends GroovyTestCase {
 
     private BlueprintParam params;
     private PrintStream logger;
     private ConfigObject testConfig;
 
-    protected List<Deployment> deployments = new ArrayList<Deployment>();
-    private String cpu = "{ \"data\":{\"CentOS7\":{\"data\":{\"cpu\":2}}}}";
-    private List<RequestParam> requestParam = new ArrayList<RequestParam>();
+    //protected List<Deployment> deployments = new ArrayList<Deployment>();
+    //private String cpu = "{ \"data\":{\"CentOS7\":{\"data\":{\"cpu\":2}}}}";
+    //private List<RequestParam> requestParam = new ArrayList<RequestParam>();
 
 
-    BlueprintTest() {
-
-        //Properties prop = new Properties();
-        //InputStream input = null;
+    BlueprintParamTest() {
 
         try {
 
@@ -47,25 +44,25 @@ class BlueprintTest extends GroovyTestCase {
         }
     }
 
+    @Test
+    public void testBlueprintValidation() {
+        System.out.println("Validating args...");
+        params.validate();
+        System.out.println("Validated?");
+    }
 
     @Test
-    public void testBluePrintCreate() {
-        Blueprint blueprint = new Blueprint(logger, params);
+    public void testBlueprintValidation2() {
+        //Test second constructor
+        System.out.println("Validating args...");
+        System.out.println("Placeholder")
+        //BlueprintParam params2 = new BlueprintParam(params);
 
-        blueprint.Create();
-
-
+        //params2.validate();
+        System.out.println("Validated?");
     }
 
 
-
-
-    @Test
-    public void testBlueprintDestroy() {
-
-        System.out.println("test holder");
-
-    }
 
 }
 

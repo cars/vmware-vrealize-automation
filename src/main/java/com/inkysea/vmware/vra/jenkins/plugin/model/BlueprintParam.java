@@ -17,7 +17,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.logging.Logger;
 
-
 public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> implements Serializable {
 
     private String serverUrl;
@@ -32,11 +31,9 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
     private String blueprintName;
     private boolean reassignBlueprint;
 
-
     @DataBoundConstructor
-    public BlueprintParam(String serverUrl, String userName, String password, String tenant,
-                           boolean packageBlueprint, String blueprintPath, boolean overWrite,
-                          boolean publishBlueprint, String serviceCategory){
+    public BlueprintParam(String serverUrl, String userName, String password, String tenant, boolean packageBlueprint,
+            String blueprintPath, boolean overWrite, boolean publishBlueprint, String serviceCategory) {
 
         this.serverUrl = serverUrl;
         this.userName = userName;
@@ -47,6 +44,24 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
         this.overWrite = overWrite;
         this.publishBlueprint = publishBlueprint;
         this.serviceCategory = serviceCategory;
+
+    }
+
+    public BlueprintParam(String serverUrl, String userName, String password, String tenant, boolean packageBlueprint,
+            String blueprintPath, boolean overWrite, boolean publishBlueprint, String serviceCategory,
+            String blueprintName, boolean reassignBlueprint) {
+
+        this.serverUrl = serverUrl;
+        this.userName = userName;
+        this.password = password;
+        this.tenant = tenant;
+        this.packageBlueprint = packageBlueprint;
+        this.blueprintPath = blueprintPath;
+        this.overWrite = overWrite;
+        this.publishBlueprint = publishBlueprint;
+        this.serviceCategory = serviceCategory;
+        this.blueprintName = blueprintName;
+        this.reassignBlueprint = reassignBlueprint;
 
     }
 
@@ -72,11 +87,9 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
 
     }
 
-
     public boolean getPackageBlueprint() {
         return packageBlueprint;
     }
-
 
     public boolean getPublishBlueprint() {
         return publishBlueprint;
@@ -85,7 +98,6 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
     public boolean getReassignBlueprint() {
         return reassignBlueprint;
     }
-
 
     public String getBlueprintPath() {
 
@@ -100,7 +112,6 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
     public String getServiceCategory() {
         return serviceCategory;
     }
-
 
     public Boolean validate() throws IOException {
         if (StringUtils.isBlank(this.getServerUrl())) {
@@ -126,7 +137,6 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
             throw new IOException("vRA BluePrint path cannot be empty");
         }
 
-
         return true;
     }
 
@@ -138,7 +148,6 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
         static {
             log = Logger.getLogger(DescriptorImpl.class.getName());
         }
-
 
         /**
          * In order to load the persisted global configuration, you have to
@@ -161,8 +170,7 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
             return "Load vRealize Automation Blueprint";
         }
 
-        public FormValidation doCheckServerUrl(
-                @QueryParameter final String value) {
+        public FormValidation doCheckServerUrl(@QueryParameter final String value) {
 
             String url = Util.fixEmptyAndTrim(value);
             if (url == null)
@@ -183,8 +191,7 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckUserName(
-                @QueryParameter final String value) {
+        public FormValidation doCheckUserName(@QueryParameter final String value) {
 
             String url = Util.fixEmptyAndTrim(value);
             if (url == null)
@@ -197,8 +204,7 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckPassword(
-                @QueryParameter final String value) {
+        public FormValidation doCheckPassword(@QueryParameter final String value) {
 
             String url = Util.fixEmptyAndTrim(value);
             if (url == null)
@@ -211,8 +217,7 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckTenant(
-                @QueryParameter final String value) {
+        public FormValidation doCheckTenant(@QueryParameter final String value) {
 
             String url = Util.fixEmptyAndTrim(value);
             if (url == null)
@@ -225,8 +230,7 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckBluePrintName(
-                @QueryParameter final String value) {
+        public FormValidation doCheckBluePrintName(@QueryParameter final String value) {
 
             String url = Util.fixEmptyAndTrim(value);
             if (url == null)
@@ -239,8 +243,7 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckBlueprintPath(
-                @QueryParameter final String value) {
+        public FormValidation doCheckBlueprintPath(@QueryParameter final String value) {
 
             String url = Util.fixEmptyAndTrim(value);
             if (url == null)
@@ -252,7 +255,6 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
 
             return FormValidation.ok();
         }
-
 
     }
 }

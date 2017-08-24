@@ -35,20 +35,18 @@ public class Blueprint {
 
         JsonObject validate = null;
 
-        if( this.params.getBluePrintName() == null ){
+        if( this.params.getBluePrintName() != null ){
             // Package Blueprint as zip file and load it to vRA
 
-            System.out.println("Loading blueprint using package  : ");
-
-
             String zipFile = this.params.getBluePrintName()+".zip";
+            System.out.println("Loading blueprint using package  : "+zipFile);
 
             // validate package
 
 
-
-            zip zipPackage = new zip( zipFile , this.params.getBlueprintPath(), this.params.getBlueprintPath());
             logger.println("Creating package from directory : "+this.params.getBlueprintPath());
+            zip zipPackage = new zip( zipFile , this.params.getBlueprintPath(), this.params.getBlueprintPath());
+            
 
             zipPackage.Create();
 
