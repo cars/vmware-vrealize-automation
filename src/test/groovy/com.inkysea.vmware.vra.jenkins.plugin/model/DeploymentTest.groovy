@@ -28,14 +28,13 @@ class DeploymentTest extends GroovyTestCase {
         try {
 
             testConfig = new ConfigSlurper().parse(new File('src/test/resources/config.properties').toURL());
-            //this.rParams = new RequestParam(prop.getProperty("requestParam"))
             this.rParams = new RequestParam(testConfig.requestParam)
             this.requestParam.add(rParams)
             this.params = new PluginParam(testConfig.vRAURL,
                     testConfig.userName,
                     testConfig.password,
                     testConfig.tenant,
-                    testConfig.bluePrintName,
+                    testConfig.catalogItemName,
                     testConfig.waitExec,
                     false,
                     this.requestParam

@@ -35,7 +35,7 @@ public class Blueprint {
 
         JsonObject validate = null;
 
-        if( this.params.getBluePrintName() != null ){
+        if( this.params.getBluePrintName() == null ){
             // Package Blueprint as zip file and load it to vRA
 
             String zipFile = this.params.getBluePrintName()+".zip";
@@ -46,7 +46,7 @@ public class Blueprint {
 
             logger.println("Creating package from directory : "+this.params.getBlueprintPath());
             zip zipPackage = new zip( zipFile , this.params.getBlueprintPath(), this.params.getBlueprintPath());
-            
+            System.out.println("zip file created "+zipFile);
 
             zipPackage.Create();
 

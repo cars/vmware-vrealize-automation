@@ -25,6 +25,7 @@ class BlueprintParamTest extends GroovyTestCase {
 
             testConfig = new ConfigSlurper().parse(new File('src/test/resources/config.properties').toURL());
             System.out.println("BluePrintPATH = " + testConfig.blueprintPath)
+            System.out.println("blueprintTemplateName = " + testConfig.blueprintTemplateName)
             this.params = new BlueprintParam(testConfig.vRAURL,
                     testConfig.userName,
                     testConfig.password,
@@ -34,7 +35,7 @@ class BlueprintParamTest extends GroovyTestCase {
                     true, //overWrite
                     true, //publishBlueprint
                     testConfig.blueprintServiceCategory, //) //serviceCategory
-                    testConfig.bluePrintName,
+                    testConfig.blueprintTemplateName,
                     false)  //reassign blueprint
 
         } catch (IOException ex) {

@@ -27,7 +27,7 @@ class RequestTest extends GroovyTestCase {
                     testConfig.userName,
                     testConfig.password,
                     testConfig.tenant,
-                    testConfig.bluePrintName,
+                    testConfig.catalogItemName,
                     testConfig.waitExec,
                     false,
                     null

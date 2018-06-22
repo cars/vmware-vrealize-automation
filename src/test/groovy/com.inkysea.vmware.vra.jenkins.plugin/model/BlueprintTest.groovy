@@ -37,7 +37,7 @@ class BlueprintTest extends GroovyTestCase {
                     true, //overWrite
                     true, //publishBlueprint
                     testConfig.blueprintServiceCategory, //) //serviceCategory
-                    testConfig.bluePrintName,
+                    testConfig.blueprintTemplateName,
                     false)  //reassign blueprint
 
         } catch (IOException ex) {
