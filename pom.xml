@@ -11,7 +11,7 @@
     </parent>
     <groupId>com.inkysea.vmware.vra</groupId>
     <artifactId>vmware-vrealize-automation-plugin</artifactId>
-    <version>1.2.4-RC2</version>
+    <version>1.3.0-Beta1</version>
     <packaging>hpi</packaging>
 
     <name>VMware vRealize Automation Plugin</name>
@@ -24,6 +24,11 @@
         </license>
     </licenses>
     <developers>
+        <developer>
+            <id>cars</id>
+            <name>Carlos Tronco</name>
+            <email>cars@vcaptain.net</email>
+        </developer>
         <developer>
             <id>inkysea</id>
             <name>Kris Thieler</name>
