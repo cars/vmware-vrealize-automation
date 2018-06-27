@@ -42,7 +42,7 @@ public class Request  {
     private PrintStream logger;
     private String catalogId;
     public String requestID;
-    public JsonObject bluePrintTemplate;
+    public JsonObject blueprintTemplate;
 
 
 
@@ -209,11 +209,11 @@ public class Request  {
     }
 
 
-    public JsonObject fetchBluePrint() throws IOException {
+    public JsonObject fetchBlueprint() throws IOException {
         JsonObject response = null;
-        System.out.println("Fetching BP :" + params.getBluePrintName());
+        System.out.println("Fetching BP :" + params.getBlueprintName());
 
-        String url = String.format(FETCH_CATALOG_ITEM, params.getBluePrintName()).replace(' ', '+');
+        String url = String.format(FETCH_CATALOG_ITEM, params.getBlueprintName()).replace(' ', '+');
         System.out.println("Using :" + url);
 
         HttpResponse vRAResponse = restclient.Get(url);
@@ -236,19 +236,19 @@ public class Request  {
 
             } else {
                 if (contents.size() > 1) {
-                    throw new IOException("More than one blueprint with name " + params.getBluePrintName() + " found");
+                    throw new IOException("More than one blueprint with name " + params.getBlueprintName() + " found");
                 } else if (contents.size() < 1) {
-                    throw new IOException("Blueprint with name " + params.getBluePrintName() + " not found");
+                    throw new IOException("Blueprint with name " + params.getBlueprintName() + " not found");
                 }
             }
         }
         return stringJsonAsObject;
     }
 
-    public JsonObject GetBluePrintTemplate() throws IOException {
+    public JsonObject GetBlueprintTemplate() throws IOException {
 
 
-        JsonObject response = this.fetchBluePrint();
+        JsonObject response = this.fetchBlueprint();
 
         JsonArray catalogItemContentArray = response.getAsJsonArray("content");
 
@@ -276,21 +276,21 @@ public class Request  {
         String responseAsJson = restclient.FormatResponseAsJsonString(vRAResponse);
         System.out.println("BP JSON : "+responseAsJson);
 
-        this.bluePrintTemplate = restclient.FormJsonObject(responseAsJson);
+        this.blueprintTemplate = restclient.FormJsonObject(responseAsJson);
 
-        return this.bluePrintTemplate ;
+        return this.blueprintTemplate ;
     }
 
-    public JsonObject ProvisionBluePrint() throws IOException {
+    public JsonObject ProvisionBlueprint() throws IOException {
 
-        JsonObject template = this.GetBluePrintTemplate();
+        JsonObject template = this.GetBlueprintTemplate();
 
-        JsonObject response = ProvisionBluePrint(template);
+        JsonObject response = ProvisionBlueprint(template);
 
         return response;
     }
 
-    public JsonObject ProvisionBluePrint(JsonObject template) throws IOException {
+    public JsonObject ProvisionBlueprint(JsonObject template) throws IOException {
 
         String url = String.format(PROVISION_BLUEPRINT, this.catalogId).replace(' ', '+');
         Gson gson = new Gson();

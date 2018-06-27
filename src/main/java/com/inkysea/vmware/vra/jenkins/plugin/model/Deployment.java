@@ -31,7 +31,7 @@ public class Deployment {
     private JsonObject deploymentResources;
     private String businessGroupId;
     private String tenantId;
-    public JsonObject bluePrintTemplate;
+    public JsonObject blueprintTemplate;
     private String cataologID;
     private String subtenantRef;
 
@@ -77,7 +77,7 @@ public class Deployment {
         if ( params.getRequestTemplate()) {
 
             logger.println("Requesting Blueprint Template");
-            this.bluePrintTemplate = this.request.GetBluePrintTemplate();
+            this.blueprintTemplate = this.request.GetBlueprintTemplate();
             JsonParser parser = new JsonParser();
 
             for ( RequestParam option : params.getRequestParams()){
@@ -88,21 +88,21 @@ public class Deployment {
                 }else {
                     logger.println("Request Parameter : " + option.getJson());
 
-                    this.bluePrintTemplate = merge(this.bluePrintTemplate.getAsJsonObject(),
+                    this.blueprintTemplate = merge(this.blueprintTemplate.getAsJsonObject(),
                             parser.parse(option.getJson()).getAsJsonObject());
                 }
             }
-            request.ProvisionBluePrint(this.bluePrintTemplate);
+            request.ProvisionBlueprint(this.blueprintTemplate);
 
         }else{
 
-            JsonObject bpDetails = request.fetchBluePrint();
+            JsonObject bpDetails = request.fetchBlueprint();
 
             JsonArray contentArray = bpDetails.getAsJsonArray("content");
 
             for (JsonElement content : contentArray ){
 
-                if( content.getAsJsonObject().get("name").getAsString().equalsIgnoreCase(params.getBluePrintName())){
+                if( content.getAsJsonObject().get("name").getAsString().equalsIgnoreCase(params.getBlueprintName())){
 
                     this.cataologID= content.getAsJsonObject().get("catalogItemId").getAsString();
 
@@ -122,7 +122,7 @@ public class Deployment {
 
             if(this.cataologID == null ){
                 throw new IOException("Did not find the catalogID value from the provided blueprint : "
-                        +params.getBluePrintName()+"\nPlease validate blueprint name in vRA");
+                        +params.getBlueprintName()+"\nPlease validate blueprint name in vRA");
             }
 
 
@@ -132,10 +132,10 @@ public class Deployment {
                                         +params.getTenant()+"\nPlease validate tenant name in vRA");
             }
 
-            this.bluePrintTemplate = requestCreateJSON();
-            String json = this.bluePrintTemplate.toString();
+            this.blueprintTemplate = requestCreateJSON();
+            String json = this.blueprintTemplate.toString();
             System.out.println("Requesting Blueprint with JSON body : " + json);
-            request.PostRequestJson(this.bluePrintTemplate.toString());
+            request.PostRequestJson(this.blueprintTemplate.toString());
         }
 
 

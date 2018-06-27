@@ -44,21 +44,21 @@ class RequestTest extends GroovyTestCase {
     @Test
     public void testfetchBlueprint() {
         Request request = new Request(logger, params);
-        def token = request.fetchBluePrint();
+        def token = request.fetchBlueprint();
         logger.println(token)
     }
 
     @Test
-    public void testGetBluePrintTemplate() {
+    public void testGetBlueprintTemplate() {
         Request request = new Request(logger, params)
-        def token = request.GetBluePrintTemplate();
+        def token = request.GetBlueprintTemplate();
         logger.println(token)
     }
 
     @Test
-    public void testProvisionBluePrint() {
+    public void testProvisionBlueprint() {
         Request request = new Request(logger, params)
-        def token = request.ProvisionBluePrint();
+        def token = request.ProvisionBlueprint();
 
         while (!request.IsRequestComplete()) {
             System.out.println("Execution status : " + request.RequestStatus().toString());

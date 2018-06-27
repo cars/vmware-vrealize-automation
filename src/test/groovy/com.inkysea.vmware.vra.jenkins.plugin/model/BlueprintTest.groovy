@@ -27,7 +27,7 @@ class BlueprintTest extends GroovyTestCase {
         try {
 
             testConfig = new ConfigSlurper().parse(new File('src/test/resources/config.properties').toURL());
-            System.out.println("BluePrintPATH = " + testConfig.blueprintPath)
+            System.out.println("BlueprintPATH = " + testConfig.blueprintPath)
             this.params = new BlueprintParam(testConfig.vRAURL,
                     testConfig.userName,
                     testConfig.password,
@@ -49,7 +49,7 @@ class BlueprintTest extends GroovyTestCase {
 
 
     @Test
-    public void testBluePrintCreate() {
+    public void testBlueprintCreate() {
         Blueprint blueprint = new Blueprint(logger, params);
 
         blueprint.Create();

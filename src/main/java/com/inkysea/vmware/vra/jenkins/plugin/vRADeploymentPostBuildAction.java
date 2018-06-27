@@ -91,7 +91,7 @@ public class vRADeploymentPostBuildAction extends Notifier {
 					helper.replaceBuildParamWithValue(param.getUserName()),
 					helper.replaceBuildParamWithValue(param.getPassword()),
 					helper.replaceBuildParamWithValue(param.getTenant()),
-					helper.replaceBuildParamWithValue(param.getBluePrintName()),
+					helper.replaceBuildParamWithValue(param.getBlueprintName()),
 					param.isWaitExec(),param.getRequestTemplate(), rparamResolved);
 
 			final Deployment deployment = newDeployment(listener.getLogger(), fparam);

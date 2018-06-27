@@ -24,7 +24,7 @@ class BlueprintParamTest extends GroovyTestCase {
         try {
 
             testConfig = new ConfigSlurper().parse(new File('src/test/resources/config.properties').toURL());
-            System.out.println("BluePrintPATH = " + testConfig.blueprintPath)
+            System.out.println("BlueprintPATH = " + testConfig.blueprintPath)
             System.out.println("blueprintTemplateName = " + testConfig.blueprintTemplateName)
             this.params = new BlueprintParam(testConfig.vRAURL,
                     testConfig.userName,

@@ -66,7 +66,7 @@ public class PluginParam  extends AbstractDescribableImpl<PluginParam> implement
         return tenant;
     }
 
-    public String getBluePrintName() {
+    public String getBlueprintName() {
 
         return blueprintName;
 
@@ -101,8 +101,8 @@ public class PluginParam  extends AbstractDescribableImpl<PluginParam> implement
             throw new IOException("vRA tenant cannot be empty");
         }
 
-        if (StringUtils.isBlank(this.getBluePrintName())) {
-            throw new IOException("vRA BluePrint name cannot be empty");
+        if (StringUtils.isBlank(this.getBlueprintName())) {
+            throw new IOException("vRA Blueprint name cannot be empty");
         }
 
 
@@ -204,7 +204,7 @@ public class PluginParam  extends AbstractDescribableImpl<PluginParam> implement
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckBluePrintName(
+        public FormValidation doCheckBlueprintName(
                 @QueryParameter final String value) {
 
             String url = Util.fixEmptyAndTrim(value);

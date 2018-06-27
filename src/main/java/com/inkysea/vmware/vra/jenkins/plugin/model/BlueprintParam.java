@@ -81,7 +81,7 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
         return tenant;
     }
 
-    public String getBluePrintName() {
+    public String getBlueprintName() {
 
         return blueprintName;
 
@@ -130,11 +130,11 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
             throw new IOException("vRA tenant cannot be empty");
         }
 
-        if (StringUtils.isBlank(this.getBluePrintName())) {
-            throw new IOException("vRA BluePrint name cannot be empty");
+        if (StringUtils.isBlank(this.getBlueprintName())) {
+            throw new IOException("vRA Blueprint name cannot be empty");
         }
         if (StringUtils.isBlank(this.getBlueprintPath())) {
-            throw new IOException("vRA BluePrint path cannot be empty");
+            throw new IOException("vRA Blueprint path cannot be empty");
         }
 
         return true;
@@ -230,7 +230,7 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckBluePrintName(@QueryParameter final String value) {
+        public FormValidation doCheckBlueprintName(@QueryParameter final String value) {
 
             String url = Util.fixEmptyAndTrim(value);
             if (url == null)

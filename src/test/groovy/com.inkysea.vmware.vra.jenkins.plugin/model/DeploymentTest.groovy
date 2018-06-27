@@ -17,7 +17,7 @@ class DeploymentTest extends GroovyTestCase {
     private ConfigObject testConfig;
 
     protected List<Deployment> deployments = new ArrayList<Deployment>();
-    private String cpu = "{ \"data\":{\"CentOS7\":{\"data\":{\"cpu\":2}}}}";
+    private String cpu = "{ \"data\":{\"WIN\":{\"data\":{\"cpu\":2}}}}";
     private List<RequestParam> requestParam = new ArrayList<RequestParam>();
 
 
@@ -79,7 +79,7 @@ class DeploymentTest extends GroovyTestCase {
 
         Deployment request = new Deployment(logger, params)
 
-        JsonObject parent = request.bluePrintTemplate;
+        JsonObject parent = request.blueprintTemplate;
 
         JsonObject req = parser.parse(cpu);
         System.out.println("JSON to merge : "+req);
