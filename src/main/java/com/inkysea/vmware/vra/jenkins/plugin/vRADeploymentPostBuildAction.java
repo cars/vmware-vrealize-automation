@@ -24,16 +24,16 @@ import java.util.List;
 import java.util.logging.Logger;
 
 
-public class vRADeploymentPostBuildAction extends Notifier {
+public class VRADeploymentPostBuildAction extends Notifier {
 
-	private static final Logger LOGGER = Logger.getLogger(vRADeploymentPostBuildAction.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(VRADeploymentPostBuildAction.class.getName());
 
 	protected List<PluginParam> params;
 	protected List<Deployment> deployments = new ArrayList<Deployment>();
 	private List<RequestParam> requestParams;
 
 	@DataBoundConstructor
-	public vRADeploymentPostBuildAction(List<PluginParam> params) {
+	public VRADeploymentPostBuildAction(List<PluginParam> params) {
 		this.params = params;
 	}
 
@@ -97,7 +97,7 @@ public class vRADeploymentPostBuildAction extends Notifier {
 			final Deployment deployment = newDeployment(listener.getLogger(), fparam);
 
 
-			if (deployment.Create()) {
+			if (deployment.create()) {
 				this.deployments.add(deployment);
 
 				//change counter to string and append pb for build environment
@@ -131,7 +131,7 @@ public class vRADeploymentPostBuildAction extends Notifier {
 	}
 
 	@Extension
-	public static final vRADeploymentPostBuildAction.DescriptorImpl DESCRIPTOR = new vRADeploymentPostBuildAction.DescriptorImpl();
+	public static final VRADeploymentPostBuildAction.DescriptorImpl DESCRIPTOR = new VRADeploymentPostBuildAction.DescriptorImpl();
 
 	public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 

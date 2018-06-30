@@ -2,15 +2,15 @@ package com.inkysea.vmware.vra.jenkins.plugin.model;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.StringReader;
+//import java.io.StringReader;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+//import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import net.sf.json.JSONObject;
+//import com.google.gson.stream.JsonReader;
+//import net.sf.json.JSONObject;
 import com.fasterxml.jackson.databind.JsonNode;
 
 
@@ -24,15 +24,15 @@ public class Deployment {
 
     private Request request;
     private PrintStream logger;
-    private String DESTROY_TEMPLATE_URL;
-    private String DESTROY_URL;
+    //private String DESTROY_TEMPLATE_URL;
+    //private String DESTROY_URL;
     private String deploymentName;
     private String parentResourceID;
     private JsonObject deploymentResources;
     private String businessGroupId;
     private String tenantId;
     public JsonObject blueprintTemplate;
-    private String cataologID;
+    private String catalogID;
     private String subtenantRef;
 
     private String jsonString = "{\"@type\":\"ResourceActionRequest\", \"resourceRef\":{\"id\":\"\"}, \"resourceActionRef\"\n" +
@@ -70,14 +70,15 @@ public class Deployment {
 
     }
 
-    public boolean Create() throws IOException, InterruptedException {
+    public boolean create() throws IOException, InterruptedException {
 
         boolean rcode = false;
 
         if ( params.getRequestTemplate()) {
 
             logger.println("Requesting Blueprint Template");
-            this.blueprintTemplate = this.request.GetBlueprintTemplate();
+            //logger.debug("Requesting Blueprint Template");
+            this.blueprintTemplate = this.request.getBlueprintTemplate();
             JsonParser parser = new JsonParser();
 
             for ( RequestParam option : params.getRequestParams()){
@@ -87,15 +88,19 @@ public class Deployment {
 
                 }else {
                     logger.println("Request Parameter : " + option.getJson());
-
+                    //
+                    System.out.println("BlueprintTemplate ="+ this.blueprintTemplate.toString());
+                    System.out.println("Option ="+ option.getJson().toString());
                     this.blueprintTemplate = merge(this.blueprintTemplate.getAsJsonObject(),
                             parser.parse(option.getJson()).getAsJsonObject());
                 }
             }
-            request.ProvisionBlueprint(this.blueprintTemplate);
+            request.provisionBlueprint(this.blueprintTemplate);
 
         }else{
-
+            System.out.println("_NOT_ Requesting Blueprint Template");        
+            //logger.
+            //logger.debug("_NOT_ Requesting Blueprint Template");
             JsonObject bpDetails = request.fetchBlueprint();
 
             JsonArray contentArray = bpDetails.getAsJsonArray("content");
@@ -104,7 +109,7 @@ public class Deployment {
 
                 if( content.getAsJsonObject().get("name").getAsString().equalsIgnoreCase(params.getBlueprintName())){
 
-                    this.cataologID= content.getAsJsonObject().get("catalogItemId").getAsString();
+                    this.catalogID= content.getAsJsonObject().get("catalogItemId").getAsString();
 
                     JsonArray orgArray = content.getAsJsonObject().getAsJsonArray("entitledOrganizations");
 
@@ -120,7 +125,7 @@ public class Deployment {
                 }
             }
 
-            if(this.cataologID == null ){
+            if(this.catalogID == null ){
                 throw new IOException("Did not find the catalogID value from the provided blueprint : "
                         +params.getBlueprintName()+"\nPlease validate blueprint name in vRA");
             }
@@ -135,20 +140,20 @@ public class Deployment {
             this.blueprintTemplate = requestCreateJSON();
             String json = this.blueprintTemplate.toString();
             System.out.println("Requesting Blueprint with JSON body : " + json);
-            request.PostRequestJson(this.blueprintTemplate.toString());
+            request.postRequestJson(this.blueprintTemplate.toString());
         }
 
 
         if (this.params.isWaitExec()) {
-            while (!request.IsRequestComplete()) {
-                System.out.println("Execution status : " + request.RequestStatus().toString());
+            while (!request.isRequestComplete()) {
+                System.out.println("Execution status : " + request.requestStatus().toString());
                 Thread.sleep(10 * 1000);
             }
 
-            switch (request.RequestStatus()) {
+            switch (request.requestStatus()) {
                 case SUCCESSFUL:
                     System.out.println("Request completed successfully");
-                    DeploymentResources();
+                    deploymentResources();
                     rcode = true;
                     break;
                 case FAILED:
@@ -164,59 +169,59 @@ public class Deployment {
 
     }
 
-    private JsonObject requestCreateJSON(){
+    //creates json request for provisioning blueprint? 
+    private JsonObject requestCreateJSON() {
 
-        // create the albums object
+        
         JsonObject requestJson = new JsonObject();
-        // add a property calle title to the albums object
-            requestJson.addProperty("@type","CatalogItemRequest");
+        // add a property 
+        requestJson.addProperty("@type", "CatalogItemRequest");
 
-            JsonObject catalogItemRef = new JsonObject();
-                catalogItemRef.addProperty("id",this.cataologID);
-            requestJson.add("catalogItemRef", catalogItemRef);
+        JsonObject catalogItemRef = new JsonObject();
+        catalogItemRef.addProperty("id", this.catalogID);
+        requestJson.add("catalogItemRef", catalogItemRef);
 
-            JsonObject organization = new JsonObject();
-                organization.addProperty("tenantRef",this.params.getTenant());
-                organization.addProperty("subtenantRef",this.subtenantRef);
-            requestJson.add("organization", organization);
+        JsonObject organization = new JsonObject();
+        organization.addProperty("tenantRef", this.params.getTenant());
+        organization.addProperty("subtenantRef", this.subtenantRef);
+        requestJson.add("organization", organization);
 
-            requestJson.addProperty("requestedFor",this.params.getUserName());
-            requestJson.addProperty("state","SUBMITTED");
-            requestJson.addProperty("requestNumber", 0);
+        requestJson.addProperty("requestedFor", this.params.getUserName());
+        requestJson.addProperty("state", "SUBMITTED");
+        requestJson.addProperty("requestNumber", 0);
 
+        JsonObject requestData = new JsonObject();
 
-                JsonObject requestData = new JsonObject();
+        JsonArray entriesArray = new JsonArray();
+        JsonObject entries = new JsonObject();
 
+        entries.addProperty("key", "requestedFor");
 
-                    JsonArray entriesArray = new JsonArray();
-                    JsonObject entries = new JsonObject();
+        JsonObject value = new JsonObject();
+        value.addProperty("type", "string");
+        value.addProperty("value", this.params.getUserName());
 
-                        entries.addProperty("key", "requestedFor");
+        entries.add("value", value);
 
-                        JsonObject value = new JsonObject();
-                            value.addProperty("type","string");
-                            value.addProperty("value",this.params.getUserName());
+        entriesArray.add(entries);
 
-                        entries.add("value", value);
+        for (RequestParam option : params.getRequestParams()) {
 
-                    entriesArray.add(entries);
+            if (option.getJson() == null) {
 
-                    for ( RequestParam option : params.getRequestParams()) {
+                logger.println("Request Parameter is null. skipping to next parameter");
 
-                        if ( option.getJson() == null ){
+            } else {
+                System.out.println("Request Parameter : " + option.getJson().toString());
+                //logger.println("Request Parameter : " + option.getJson().toString());
+                JsonElement response = new JsonParser().parse(option.getJson()).getAsJsonObject();
+                entriesArray.add(response);
+            }
 
-                            logger.println("Request Parameter is null. skipping to next parameter");
+        }
 
-                        }else {
-                            logger.println("Request Parameter : " + option.getJson());
-                            JsonElement response = new JsonParser().parse(option.getJson()).getAsJsonObject();
-                            entriesArray.add(response);
-                        }
-
-                    }
-
-                requestData.add("entries", entriesArray);
-            requestJson.add("requestData", requestData);
+        requestData.add("entries", entriesArray);
+        requestJson.add("requestData", requestData);
 
         return requestJson;
 
@@ -430,9 +435,9 @@ public class Deployment {
         return depName;
     }
 
-    public void DeploymentResources() throws IOException{
+    public void deploymentResources() throws IOException{
 
-            this.deploymentResources  = request.GetRequestResourceView();
+            this.deploymentResources  = request.getRequestResourceView();
 
     }
 
@@ -535,7 +540,8 @@ public class Deployment {
                 if (mainNode instanceof ObjectNode) {
                     // Overwrite field
                     JsonNode value = updateNode.get(fieldName);
-                    ((ObjectNode) mainNode).put(fieldName, value);
+                    //((ObjectNode) mainNode).put(fieldName, value);
+                    ((ObjectNode) mainNode).replace(fieldName, value);
                 }
             }
 
@@ -550,6 +556,14 @@ public class Deployment {
         JsonObject returnJSON;
 
         ObjectMapper mapper = new ObjectMapper();
+        if (mainJson == null){
+             System.out.println("mainJson is null");
+        } else { 
+            System.out.println("Original BP request : " + mainJson.toString());
+        }
+
+        System.out.println("JSON to merge : " + updateJson.toString());
+
 
         String json1 = mainJson.toString();
         String json2 = updateJson.toString();
@@ -630,26 +644,26 @@ public class Deployment {
     }
 
 
-    public boolean Destroy( String DeploymentName ) throws IOException {
+    public boolean destroy( String DeploymentName ) throws IOException {
 
         logger.println("Destroying Deployment "+DeploymentName);
 
         // Get ResrouceView to find parentID from name
-        this.deploymentResources = this.request.GetResourceView(DeploymentName);
+        this.deploymentResources = this.request.getResourceView(DeploymentName);
         System.out.println("JSON Obj "+this.deploymentResources);
 
         this.getParentResourceID(DeploymentName);
         // Get actionID for destroy
-        return this.Destroy();
+        return this.destroy();
 
     }
 
-    public boolean Destroy() throws IOException {
+    public boolean destroy() throws IOException {
 
         if( this.parentResourceID == null ) {
             System.out.println("Destroying Deployment");
 
-            DeploymentResources();
+            deploymentResources();
             this.getParentResourceID();
         }
 
@@ -691,7 +705,7 @@ public class Deployment {
 
         System.out.println("JSON Destroy "+jsonDestroyObject.toString());
 
-        request.PostRequest(jsonDestroyObject.toString());
+        request.postRequest(jsonDestroyObject.toString());
 
         return true;
 

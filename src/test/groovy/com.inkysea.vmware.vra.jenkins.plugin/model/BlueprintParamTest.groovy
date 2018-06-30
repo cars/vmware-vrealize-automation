@@ -47,6 +47,7 @@ class BlueprintParamTest extends GroovyTestCase {
 
     @Test
     public void testBlueprintValidation() {
+        System.out.println("\n\n************___testBlueprintValidation___*************");        
         System.out.println("Validating args...");
         params.validate();
         System.out.println("Validated?");
@@ -54,6 +55,7 @@ class BlueprintParamTest extends GroovyTestCase {
 
     @Test
     public void testBlueprintValidation2() {
+        System.out.println("\n\n************___testBlueprintValidation2___*************");        
         //Test second constructor
         System.out.println("Validating args...");
         System.out.println("Placeholder")

@@ -15,18 +15,20 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
+//import java.util.List;
 import java.util.logging.Logger;
 
 
 public class DestroyParam extends AbstractDescribableImpl<DestroyParam> implements Serializable {
+
+    static final long serialVersionUID = 10300L;
 
     private String serverUrl;
     private String userName;
     private String password;
     private String tenant;
     private String deploymentName;
-    private boolean waitExec;
+    //private boolean waitExec;
 
     @DataBoundConstructor
     public DestroyParam(String serverUrl, String userName, String password, String tenant,

@@ -23,9 +23,9 @@ class RestClientTest extends GroovyTestCase  {
 
             testConfig = new ConfigSlurper().parse(new File('src/test/resources/config.properties').toURL());
             System.out.println("vRAURL = "+ testConfig.vRAURL);
-            System.out.println("username = "+ testConfig.userName);
+            System.out.println("userName = "+ testConfig.userName);
             System.out.println("password = "+ testConfig.password);
-            System.out.println("tenantt = "+ testConfig.tenant);            
+            System.out.println("tenant = "+ testConfig.tenant);            
             System.out.println("catalogItemName = "+ testConfig.catalogItemName);
             System.out.println("waitExec= "+ testConfig.waitExec);     
             System.out.println("requestParam= "+ testConfig.requestParam);     
@@ -40,15 +40,7 @@ class RestClientTest extends GroovyTestCase  {
                     requestParam
             )
             
-            /*this.params = new PluginParam("https://vra-02.ad.lab.lostroncos.net",
-                    "vrajenkins@ad.lab.lostroncos.net",
-                    '!QAZ2wsx',
-                    'vsphere.local',
-                    'WIN2016 - SQL 2014 - Jenkins',
-                    true,
-                    false,
-                    requestParam
-            )*/
+  
             System.out.println("Params Next= ");     
             System.out.println("Params= "+ this.params);     
         } catch (IOException ex) {
@@ -61,8 +53,11 @@ class RestClientTest extends GroovyTestCase  {
 
     @Test
     public void testAuth2(){
+        System.out.println("\n\n************___testAuth2___*************");        
         System.out.println("In TesTAuth2")
-        System.out.println(params)
+        System.out.println("Server:"+params.serverUrl)
+        System.out.println("CatalogItem:"+params.blueprintName)
+        System.out.println("User:"+params.userName)
           logger.println(params)
         RestClient connect = new RestClient( testConfig.vRAURL, testConfig.userName, "!QAZ2wsx", testConfig.tenant )
         def token = connect.token;
@@ -72,6 +67,7 @@ class RestClientTest extends GroovyTestCase  {
 
     @Test
     public void testAuth() {
+        System.out.println("\n\n************___testAuth___*************");        
         System.out.println("In TesTAuth")
         System.out.println(params)
           logger.println(params)

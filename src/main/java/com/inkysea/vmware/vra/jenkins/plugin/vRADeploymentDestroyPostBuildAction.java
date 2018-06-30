@@ -24,15 +24,15 @@ import java.util.List;
 import java.util.logging.Logger;
 
 
-public class vRADeploymentDestroyPostBuildAction extends Notifier {
+public class VRADeploymentDestroyPostBuildAction extends Notifier {
 
-	private static final Logger LOGGER = Logger.getLogger(vRADeploymentDestroyPostBuildAction.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(VRADeploymentDestroyPostBuildAction.class.getName());
 
 	protected List<DestroyParam> destroyParams;
 	protected List<Deployment> deployments = new ArrayList<Deployment>();
 
 	@DataBoundConstructor
-	public vRADeploymentDestroyPostBuildAction(List<DestroyParam> destroyParams) {
+	public VRADeploymentDestroyPostBuildAction(List<DestroyParam> destroyParams) {
 		this.destroyParams = destroyParams;
 	}
 
@@ -86,7 +86,7 @@ public class vRADeploymentDestroyPostBuildAction extends Notifier {
 					helper.replaceBuildParamWithValue(param.getDeploymentName()));
 
 			final Deployment deployment = new Deployment(listener.getLogger(), fparam);
-			if(deployment.Destroy(env.expand(param.getDeploymentName()))) {
+			if(deployment.destroy(env.expand(param.getDeploymentName()))) {
 				this.deployments.add(deployment);
 
 				LOGGER.info("Success");

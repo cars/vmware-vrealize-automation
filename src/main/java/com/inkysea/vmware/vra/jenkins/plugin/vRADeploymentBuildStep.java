@@ -25,16 +25,16 @@ import java.util.logging.Logger;
 
 
 
-public class vRADeploymentBuildStep  extends Builder {
+public class VRADeploymentBuildStep  extends Builder {
 
-	private static final Logger LOGGER = Logger.getLogger(vRADeploymentBuildStep.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(VRADeploymentBuildStep.class.getName());
 
 	protected List<PluginParam> params;
 	protected List<Deployment> deployments = new ArrayList<Deployment>();
 	private List<RequestParam> requestParams;
 
 	@DataBoundConstructor
-	public vRADeploymentBuildStep(List<PluginParam> params) {
+	public VRADeploymentBuildStep(List<PluginParam> params) {
 		this.params = params;
 	}
 
@@ -104,7 +104,7 @@ public class vRADeploymentBuildStep  extends Builder {
 			final Deployment deployment = newDeployment(listener.getLogger(), fparam);
 
 
-			if (deployment.Create()) {
+			if (deployment.create()) {
 				this.deployments.add(deployment);
 				//change counter to string and append bs for build step
 				String strCounter = "BS_"+Integer.toString(counter);
@@ -141,7 +141,7 @@ public class vRADeploymentBuildStep  extends Builder {
 	}
 
 	@Extension
-	public static final vRADeploymentBuildStep.DescriptorImpl DESCRIPTOR = new vRADeploymentBuildStep.DescriptorImpl();
+	public static final VRADeploymentBuildStep.DescriptorImpl DESCRIPTOR = new VRADeploymentBuildStep.DescriptorImpl();
 
 	public static class DescriptorImpl extends BuildStepDescriptor<Builder> {
 

@@ -7,21 +7,25 @@ import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipFile;
+//import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 
-public class zip {
+public class Zip {
 
 
-    private static File INPUT_DIRECTORY = null;
-    private static String ZIP_FILE = null;
-    private static String OUTPUT_DIRECTORY = null;
-    private static File ZIP_FILE_ABSOLUTE_PATH = null;
+    //private static File INPUT_DIRECTORY = null;
+    private File INPUT_DIRECTORY = null;
+    //private static String ZIP_FILE = null;
+    private String ZIP_FILE = null;
+    //private static String OUTPUT_DIRECTORY = null;
+    private String OUTPUT_DIRECTORY = null;
+    //private static File ZIP_FILE_ABSOLUTE_PATH = null;
+    private File ZIP_FILE_ABSOLUTE_PATH = null;
 
 
-    public zip(String zipFile ,String inDirectoryPath, String outDirectoryPath)  {
+    public Zip(String zipFile ,String inDirectoryPath, String outDirectoryPath)  {
 
 
         this.ZIP_FILE = zipFile;
@@ -32,7 +36,7 @@ public class zip {
     }
 
 
-    public boolean Create() throws IOException, ArchiveException {
+    public boolean create() throws IOException, ArchiveException {
 
         System.out.println("Input Directory "+ INPUT_DIRECTORY);
 
@@ -80,7 +84,7 @@ public class zip {
 
 
 
-    public boolean Delete() {
+    public boolean delete() {
 
         return true;
     }

@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 
 public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> implements Serializable {
 
+    static final long serialVersionUID = 10300L;
+
     private String serverUrl;
     private String userName;
     private String password;
@@ -31,7 +33,7 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
     private String blueprintName;
     private boolean reassignBlueprint;
 
-    @DataBoundConstructor
+    //@DataBoundConstructor
     public BlueprintParam(String serverUrl, String userName, String password, String tenant, boolean packageBlueprint,
             String blueprintPath, boolean overWrite, boolean publishBlueprint, String serviceCategory) {
 
@@ -46,7 +48,10 @@ public class BlueprintParam extends AbstractDescribableImpl<BlueprintParam> impl
         this.serviceCategory = serviceCategory;
 
     }
-
+    
+    //CRTDebug
+    
+    @DataBoundConstructor
     public BlueprintParam(String serverUrl, String userName, String password, String tenant, boolean packageBlueprint,
             String blueprintPath, boolean overWrite, boolean publishBlueprint, String serviceCategory,
             String blueprintName, boolean reassignBlueprint) {

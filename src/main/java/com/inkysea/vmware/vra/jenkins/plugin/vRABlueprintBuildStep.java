@@ -11,6 +11,7 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.*;
+import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Builder;
@@ -26,15 +27,15 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 
-public class vRABlueprintBuildStep extends Builder {
+public class VRABlueprintBuildStep extends Builder {
 
-	private static final Logger LOGGER = Logger.getLogger(vRABlueprintBuildStep.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(VRABlueprintBuildStep.class.getName());
 
 	protected List<BlueprintParam> params;
 	protected List<Blueprint> blueprintList = new ArrayList<Blueprint>();
 
 	@DataBoundConstructor
-	public vRABlueprintBuildStep(List<BlueprintParam> params) {
+	public VRABlueprintBuildStep(List<BlueprintParam> params) {
 		this.params = params;
 	}
 
@@ -100,7 +101,7 @@ public class vRABlueprintBuildStep extends Builder {
 
 
 			try {
-				if (blueprint.Create()) {
+				if (blueprint.create()) {
 					this.blueprintList.add(blueprint);
 
                 } else {
@@ -120,8 +121,8 @@ public class vRABlueprintBuildStep extends Builder {
 
 	protected Blueprint newBlueprint(PrintStream logger, BlueprintParam params) throws IOException {
 
-		Boolean isURL = false;
-		String recipe = null;
+		//Boolean isURL = false;
+		//String recipe = null;
 
 		return new Blueprint(logger, params);
 
@@ -133,7 +134,7 @@ public class vRABlueprintBuildStep extends Builder {
 	}
 
 	@Extension
-	public static final vRABlueprintBuildStep.DescriptorImpl DESCRIPTOR = new vRABlueprintBuildStep.DescriptorImpl();
+	public static final VRABlueprintBuildStep.DescriptorImpl DESCRIPTOR = new VRABlueprintBuildStep.DescriptorImpl();
 
 	public static class DescriptorImpl extends BuildStepDescriptor<Builder> {
 

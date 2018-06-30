@@ -43,6 +43,7 @@ class RequestTest extends GroovyTestCase {
 
     @Test
     public void testfetchBlueprint() {
+        System.out.println("\n\n************___testfetchBlueprint___*************");
         Request request = new Request(logger, params);
         def token = request.fetchBlueprint();
         logger.println(token)
@@ -50,22 +51,25 @@ class RequestTest extends GroovyTestCase {
 
     @Test
     public void testGetBlueprintTemplate() {
+        System.out.println("\n\n************___testGetBlueprintTemplate___*************");
         Request request = new Request(logger, params)
-        def token = request.GetBlueprintTemplate();
+        def token = request.getBlueprintTemplate();
+        System.out.println("Token is :" + token)
         logger.println(token)
     }
 
     @Test
     public void testProvisionBlueprint() {
+        System.out.println("\n\n************___testProvisionBlueprint___*************");        
         Request request = new Request(logger, params)
-        def token = request.ProvisionBlueprint();
+        def token = request.provisionBlueprint();
 
-        while (!request.IsRequestComplete()) {
-            System.out.println("Execution status : " + request.RequestStatus().toString());
+        while (!request.isRequestComplete()) {
+            System.out.println("Execution status : " + request.requestStatus().toString());
             Thread.sleep(10 * 1000);
         }
 
-        switch (request.RequestStatus().toString()) {
+        switch (request.requestStatus().toString()) {
             case "SUCCESSFUL":
                 System.out.println("Requested complete successfully");
                 break;
@@ -76,7 +80,7 @@ class RequestTest extends GroovyTestCase {
                 throw new IOException("Request execution cancelled. Please go to vRA for more details");
         }
 
-        System.out.println("Resource View :"+request.GetResourceView().toString());
+        System.out.println("Resource View :"+request.getResourceView().toString());
 
     }
 

@@ -17,11 +17,13 @@ import org.kohsuke.stapler.export.ExportedBean;
 @ExportedBean
 public class RequestParam extends AbstractDescribableImpl<RequestParam> implements Serializable, Cloneable {
 
+    static final long serialVersionUID = 10300L;
+
     private String json;
 
     private String type="STRING";
     private String description="";
-    private String value;
+    //private String value;
 
     @DataBoundConstructor
     public RequestParam(String json) {

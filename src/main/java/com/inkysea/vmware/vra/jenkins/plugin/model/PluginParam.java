@@ -6,7 +6,7 @@ import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
 import hudson.model.AbstractDescribableImpl;
 
-import hudson.tools.AbstractCommandInstaller;
+//import hudson.tools.AbstractCommandInstaller;
 import hudson.util.FormValidation;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -20,10 +20,12 @@ import java.net.URL;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static hudson.Util.rawEncode;
+//import static hudson.Util.rawEncode;
 
 
 public class PluginParam  extends AbstractDescribableImpl<PluginParam> implements Serializable {
+
+    static final long serialVersionUID = 10300L;
 
     private String serverUrl;
     private String userName;
@@ -75,6 +77,11 @@ public class PluginParam  extends AbstractDescribableImpl<PluginParam> implement
     public boolean isWaitExec() {
         return waitExec;
     }
+
+    public boolean getWaitExec() {
+        return waitExec;
+    }
+
 
     public boolean getRequestTemplate() {
         return requestTemplate;
