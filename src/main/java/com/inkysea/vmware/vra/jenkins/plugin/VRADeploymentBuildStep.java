@@ -4,42 +4,41 @@
  */
 package com.inkysea.vmware.vra.jenkins.plugin;
 
-import com.inkysea.vmware.vra.jenkins.plugin.model.Blueprint;
-import com.inkysea.vmware.vra.jenkins.plugin.model.BlueprintParam;
+import com.inkysea.vmware.vra.jenkins.plugin.model.Deployment;
+import com.inkysea.vmware.vra.jenkins.plugin.model.PluginParam;
+import com.inkysea.vmware.vra.jenkins.plugin.model.RequestParam;
 import com.inkysea.vmware.vra.jenkins.plugin.util.EnvVariableResolver;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.*;
-import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
-import org.apache.commons.compress.archivers.ArchiveException;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 
-public class VRABlueprintBuildStep extends Builder {
 
-	private static final Logger LOGGER = Logger.getLogger(VRABlueprintBuildStep.class.getName());
+public class VRADeploymentBuildStep  extends Builder {
 
-	protected List<BlueprintParam> params;
-	protected List<Blueprint> blueprintList = new ArrayList<Blueprint>();
+	private static final Logger LOGGER = Logger.getLogger(VRADeploymentBuildStep.class.getName());
+
+	protected List<PluginParam> params;
+	protected List<Deployment> deployments = new ArrayList<Deployment>();
+	private List<RequestParam> requestParams;
 
 	@DataBoundConstructor
-	public VRABlueprintBuildStep(List<BlueprintParam> params) {
+	public VRADeploymentBuildStep(List<PluginParam> params) {
 		this.params = params;
 	}
 
-	public List<BlueprintParam> getParams() {
+	public List<PluginParam> getParams() {
 		return params;
 	}
 
@@ -77,40 +76,48 @@ public class VRABlueprintBuildStep extends Builder {
 		EnvVariableResolver helper = new EnvVariableResolver(build, listener);
 
 		boolean success = true;
-		System.out.println("Loading Blueprint !");
-
 
 		int counter = 1;
-		for (BlueprintParam param : params) {
-
-			System.out.println("Creating package from directory : " + param.getBlueprintPath());
+		for (PluginParam param : params) {
 
 
-			// Resolve any environment variables in the parameters
-			BlueprintParam fparam = new BlueprintParam(helper.replaceBuildParamWithValue(param.getServerUrl()),
+				// Resolve any build variables included in the request paramaters.
+			List<RequestParam> rparamResolved = new ArrayList<RequestParam>();;
+
+				if ( ! (null == param.getRequestParams()) || param.getRequestParams().isEmpty()) {
+
+
+					for (RequestParam rparam : param.getRequestParams()) {
+						String rparamString = helper.replaceBuildParamWithValue(rparam.getRequestParam().toString());
+						rparamResolved.add(new RequestParam(rparamString));
+					}
+				}
+
+			// Resolve any environment variables in the parameters 
+			PluginParam fparam = new PluginParam(helper.replaceBuildParamWithValue(param.getServerUrl()),
 					helper.replaceBuildParamWithValue(param.getUserName()),
 					helper.replaceBuildParamWithValue(param.getPassword()),
 					helper.replaceBuildParamWithValue(param.getTenant()),
-					param.getPackageBlueprint(),
-					env.get("WORKSPACE")+"/"+param.getBlueprintPath(),
-					param.getOverWrite(),
-					param.getPublishBlueprint(),
-					param.getServiceCategory());
+					helper.replaceBuildParamWithValue(param.getBlueprintName()),
+					param.isWaitExec(),param.getRequestTemplate(), rparamResolved);
 
-			final Blueprint blueprint = newBlueprint(listener.getLogger(), fparam);
+			final Deployment deployment = newDeployment(listener.getLogger(), fparam);
 
 
-			try {
-				if (blueprint.create()) {
-					this.blueprintList.add(blueprint);
+			if (deployment.create()) {
+				this.deployments.add(deployment);
+				//change counter to string and append bs for build step
+				String strCounter = "BS_"+Integer.toString(counter);
 
-                } else {
-                    build.setResult(Result.FAILURE);
-                    success = false;
-                    break;
-                }
-			} catch (ArchiveException e) {
-				e.printStackTrace();
+				env.putAll(deployment.getDeploymentComponents(strCounter));
+
+				build.addAction(new PublishEnvVarAction(deployment.getDeploymentComponents(strCounter)));
+
+				counter++;
+			} else {
+				build.setResult(Result.FAILURE);
+				success = false;
+				break;
 			}
 
 		}
@@ -119,12 +126,12 @@ public class VRABlueprintBuildStep extends Builder {
 	}
 
 
-	protected Blueprint newBlueprint(PrintStream logger, BlueprintParam params) throws IOException {
+	protected Deployment newDeployment(PrintStream logger, PluginParam params) throws IOException {
 
-		//Boolean isURL = false;
-		//String recipe = null;
+		Boolean isURL = false;
+		String recipe = null;
 
-		return new Blueprint(logger, params);
+		return new Deployment(logger, params);
 
 	}
 
@@ -134,14 +141,14 @@ public class VRABlueprintBuildStep extends Builder {
 	}
 
 	@Extension
-	public static final VRABlueprintBuildStep.DescriptorImpl DESCRIPTOR = new VRABlueprintBuildStep.DescriptorImpl();
+	public static final VRADeploymentBuildStep.DescriptorImpl DESCRIPTOR = new VRADeploymentBuildStep.DescriptorImpl();
 
 	public static class DescriptorImpl extends BuildStepDescriptor<Builder> {
 
 		@Override
 		public String getDisplayName() {
                     
-			return "vRealize Automation Blueprint";
+			return "vRealize Automation Deployment";
 		}
 
 		@Override

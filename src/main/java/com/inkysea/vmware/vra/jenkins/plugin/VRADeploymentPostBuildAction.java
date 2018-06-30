@@ -12,29 +12,28 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.*;
-import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.BuildWrapper;
-import hudson.tasks.Builder;
+import hudson.tasks.*;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
 
 
+public class VRADeploymentPostBuildAction extends Notifier {
 
-public class VRADeploymentBuildStep  extends Builder {
-
-	private static final Logger LOGGER = Logger.getLogger(VRADeploymentBuildStep.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(VRADeploymentPostBuildAction.class.getName());
 
 	protected List<PluginParam> params;
 	protected List<Deployment> deployments = new ArrayList<Deployment>();
 	private List<RequestParam> requestParams;
 
 	@DataBoundConstructor
-	public VRADeploymentBuildStep(List<PluginParam> params) {
+	public VRADeploymentPostBuildAction(List<PluginParam> params) {
 		this.params = params;
 	}
 
@@ -65,33 +64,27 @@ public class VRADeploymentBuildStep  extends Builder {
 		return super.getProjectActions(project);
 	}
 
-
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
-							throws InterruptedException, IOException {
+			throws InterruptedException, IOException {
 
 		EnvVars env = build.getEnvironment(listener);
 		env.overrideAll(build.getBuildVariables());
-
 		EnvVariableResolver helper = new EnvVariableResolver(build, listener);
+
 
 		boolean success = true;
 
 		int counter = 1;
 		for (PluginParam param : params) {
 
-
-				// Resolve any build variables included in the request paramaters.
+			// Resolve any build variables included in the request parameters.
 			List<RequestParam> rparamResolved = new ArrayList<RequestParam>();;
 
-				if ( ! (null == param.getRequestParams()) || param.getRequestParams().isEmpty()) {
-
-
-					for (RequestParam rparam : param.getRequestParams()) {
-						String rparamString = helper.replaceBuildParamWithValue(rparam.getRequestParam().toString());
-						rparamResolved.add(new RequestParam(rparamString));
-					}
-				}
+			for(RequestParam rparam : param.getRequestParams()){
+				String rparamString =  helper.replaceBuildParamWithValue(rparam.getRequestParam().toString());
+				rparamResolved.add(new RequestParam(rparamString));
+			}
 
 			// Resolve any environment variables in the parameters
 			PluginParam fparam = new PluginParam(helper.replaceBuildParamWithValue(param.getServerUrl()),
@@ -106,13 +99,10 @@ public class VRADeploymentBuildStep  extends Builder {
 
 			if (deployment.create()) {
 				this.deployments.add(deployment);
-				//change counter to string and append bs for build step
-				String strCounter = "BS_"+Integer.toString(counter);
 
+				//change counter to string and append pb for build environment
+				String strCounter = "PB_"+Integer.toString(counter);
 				env.putAll(deployment.getDeploymentComponents(strCounter));
-
-				build.addAction(new PublishEnvVarAction(deployment.getDeploymentComponents(strCounter)));
-
 				counter++;
 			} else {
 				build.setResult(Result.FAILURE);
@@ -141,9 +131,9 @@ public class VRADeploymentBuildStep  extends Builder {
 	}
 
 	@Extension
-	public static final VRADeploymentBuildStep.DescriptorImpl DESCRIPTOR = new VRADeploymentBuildStep.DescriptorImpl();
+	public static final VRADeploymentPostBuildAction.DescriptorImpl DESCRIPTOR = new VRADeploymentPostBuildAction.DescriptorImpl();
 
-	public static class DescriptorImpl extends BuildStepDescriptor<Builder> {
+	public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
 		@Override
 		public String getDisplayName() {
@@ -157,22 +147,4 @@ public class VRADeploymentBuildStep  extends Builder {
 		}
                 
 	}
-
-	public class PublishEnvVarAction extends InvisibleAction implements EnvironmentContributingAction {
-	// Required class to write variables back to Jenkins when part of a build step
-
-		private Map<String, String> variables;
-
-		public PublishEnvVarAction(Map<String, String> deploymentComponents) {
-			this.variables = deploymentComponents;
-
-		}
-
-
-		public void buildEnvVars(AbstractBuild<?, ?> build, EnvVars env) {
-			env.putAll(variables);
-		}
-
-	}
-
 }
