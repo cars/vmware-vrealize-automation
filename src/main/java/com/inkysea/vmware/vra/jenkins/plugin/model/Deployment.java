@@ -3,6 +3,7 @@ package com.inkysea.vmware.vra.jenkins.plugin.model;
 import java.io.IOException;
 import java.io.PrintStream;
 //import java.io.StringReader;
+import java.util.logging.Logger;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class Deployment {
 
+    private static final Logger LOGGER = Logger.getLogger(Deployment.class.getName());
     private PluginParam params;
     private DestroyParam dParams;
 
@@ -71,7 +73,7 @@ public class Deployment {
     }
 
     public boolean create() throws IOException, InterruptedException {
-
+        LOGGER.entering(this.getClass().getSimpleName(),"create()");	
         boolean rcode = false;
 
         if ( params.getRequestTemplate()) {
@@ -90,7 +92,8 @@ public class Deployment {
                     logger.println("Request Parameter : " + option.getJson());
                     //
                     System.out.println("BlueprintTemplate ="+ this.blueprintTemplate.toString());
-                    System.out.println("Option ="+ option.getJson().toString());
+                    logger.println("BlueprintTemplate ="+ this.blueprintTemplate.toString());
+                    logger.println("Option ="+ option.getJson().toString());
                     this.blueprintTemplate = merge(this.blueprintTemplate.getAsJsonObject(),
                             parser.parse(option.getJson()).getAsJsonObject());
                 }
@@ -98,7 +101,7 @@ public class Deployment {
             request.provisionBlueprint(this.blueprintTemplate);
 
         }else{
-            System.out.println("_NOT_ Requesting Blueprint Template");        
+            logger.println("_NOT_ Requesting Blueprint Template");        
             //logger.
             //logger.debug("_NOT_ Requesting Blueprint Template");
             JsonObject bpDetails = request.fetchBlueprint();
@@ -139,7 +142,7 @@ public class Deployment {
 
             this.blueprintTemplate = requestCreateJSON();
             String json = this.blueprintTemplate.toString();
-            System.out.println("Requesting Blueprint with JSON body : " + json);
+            logger.println("Requesting Blueprint with JSON body : " + json);
             request.postRequestJson(this.blueprintTemplate.toString());
         }
 
@@ -164,7 +167,7 @@ public class Deployment {
                     throw new IOException("Request execution cancelled. Please go to vRA for more details");
             }
         }
-
+        LOGGER.entering(this.getClass().getSimpleName(),"create()");	
         return rcode;
 
     }
@@ -248,8 +251,15 @@ public class Deployment {
                     machineDataList.add(jsonData.getAsJsonObject().get("Component").getAsString());
                     machineDataList.add(content.getAsJsonObject().get("name").getAsString());
                     machineDataList.add(jsonNetworkData.getAsJsonObject().get("NETWORK_NAME").getAsString());
-                    machineDataList.add(jsonNetworkData.getAsJsonObject().get("NETWORK_ADDRESS").getAsString());
-
+                    machineDataList.add(jsonNetworkData.getAsJsonObject().get("NETWORK_MAC_ADDRESS").getAsString());
+                    //Based on personal experience may have situation in which NIC is present on a network but doesn't 
+                    // have an IP assigned, ex: DHCP
+                    //
+                    try {
+                        machineDataList.add(jsonNetworkData.getAsJsonObject().get("NETWORK_ADDRESS").getAsString());
+                    } catch (NullPointerException er){
+                        machineDataList.add("AddressUnset");
+                    } 
                     machineList.add(machineDataList);
 
                 }

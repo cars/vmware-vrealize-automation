@@ -49,20 +49,20 @@ public class VRABlueprintBuildStep extends Builder {
 
 	@Override
 	public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
-		LOGGER.info("prebuild");
+		LOGGER.fine("prebuild");
 		return super.prebuild(build, listener);
 	}
 
 
 	@Override
 	public Action getProjectAction(AbstractProject<?, ?> project) {
-		LOGGER.info("getProjectAction");
+		LOGGER.fine("getProjectAction");
 		return super.getProjectAction(project);
 	}
 
 	@Override
 	public Collection<? extends Action> getProjectActions(AbstractProject<?, ?> project) {
-		LOGGER.info("getProjectActions");
+		LOGGER.fine("getProjectActions");
 		return super.getProjectActions(project);
 	}
 
@@ -70,7 +70,7 @@ public class VRABlueprintBuildStep extends Builder {
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
 							throws InterruptedException, IOException {
-
+		LOGGER.entering(this.getClass().getSimpleName(),"perform()");					
 		EnvVars env = build.getEnvironment(listener);
 		env.overrideAll(build.getBuildVariables());
 
@@ -114,6 +114,7 @@ public class VRABlueprintBuildStep extends Builder {
 			}
 
 		}
+		LOGGER.exiting(this.getClass().getSimpleName(),"perform()");
 		return success;
 
 	}
