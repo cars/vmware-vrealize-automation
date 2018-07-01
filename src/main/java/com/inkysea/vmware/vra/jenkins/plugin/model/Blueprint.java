@@ -3,7 +3,7 @@ package com.inkysea.vmware.vra.jenkins.plugin.model;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.inkysea.vmware.vra.jenkins.plugin.util.zip;
+import com.inkysea.vmware.vra.jenkins.plugin.util.Zip;
 import org.apache.commons.compress.archivers.ArchiveException;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class Blueprint {
 
     }
 
-    public boolean Create() throws IOException, InterruptedException, ArchiveException {
+    public boolean create() throws IOException, InterruptedException, ArchiveException {
 
         JsonObject validate = null;
 
@@ -45,10 +45,10 @@ public class Blueprint {
 
 
             logger.println("Creating package from directory : "+this.params.getBlueprintPath());
-            zip zipPackage = new zip( zipFile , this.params.getBlueprintPath(), this.params.getBlueprintPath());
+            Zip zipPackage = new Zip( zipFile , this.params.getBlueprintPath(), this.params.getBlueprintPath());
             System.out.println("zip file created "+zipFile);
 
-            zipPackage.Create();
+            zipPackage.create();
 
             // validate package
             validate = request.validatePackages(this.params.getBlueprintPath()+"/"+zipFile, "overwrite");
@@ -89,7 +89,7 @@ public class Blueprint {
         // Note that all blueprints in a package will be assigned to the same service category.
         if ( this.params.getPublishBlueprint() ){
 
-
+            System.out.println("Validate :"+validate);
             System.out.println("Printing Array :"+validate.getAsJsonArray("operationResults"));
             System.out.println(" Array length:"+validate.getAsJsonArray("operationResults").getAsJsonArray().size());
 
@@ -112,7 +112,7 @@ public class Blueprint {
 
                     System.out.println("Printing Content :"+contentName);
 
-                    JsonObject blueprintJson = this.request.GetBlueprint(contentName);
+                    JsonObject blueprintJson = this.request.getBlueprint(contentName);
 
                     System.out.println("Printing blueprintJson :"+blueprintJson);
 
@@ -129,11 +129,11 @@ public class Blueprint {
 
 
                         // calls /composition-service/api/blueprints/{blueprintName}/status
-                        this.request.PutBluprintStatus(contentName, "PUBLISHED");
+                        this.request.putBluprintStatus(contentName, "PUBLISHED");
 
                         // Get catalog item JSON and merge in service category,  increment the version value
                         // in JSON element and get the catalogID for later use
-                        JsonObject catalogItemJSON = this.request.GetCatalogItemByName(contentName);
+                        JsonObject catalogItemJSON = this.request.getCatalogItemByName(contentName);
 
                         JsonArray catalogItemContentArray = catalogItemJSON.getAsJsonArray("content");
 
@@ -155,7 +155,7 @@ public class Blueprint {
                         // /catalog-service/api/catalogItems/a29501cd-179a-4be5-8096-f29ad4847521
 
                         System.out.println("Catalog Publish JSON " + catalogItemPublish);
-                        this.request.PutCatalogItem(catalogId, catalogItemPublish.getAsJsonObject().toString());
+                        this.request.putCatalogItem(catalogId, catalogItemPublish.getAsJsonObject().toString());
                     }
 
                 }

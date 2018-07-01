@@ -12,7 +12,7 @@ import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildWrapper;
-import hudson.tasks.BuildWrapper.Environment;
+//import hudson.tasks.BuildWrapper.Environment;
 import hudson.tasks.BuildWrapperDescriptor;
 
 import java.io.IOException;
@@ -21,22 +21,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
+//import java.util.concurrent.TimeoutException; 
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
 
-public class vRABuildWrapper extends BuildWrapper {
+public class VRABuildWrapper extends BuildWrapper {
 
 
     protected List<PluginParam> params;
     protected List<Deployment> deployments = new ArrayList<Deployment>();
-    private List<RequestParam> requestParams;
+    //private List<RequestParam> requestParams;
 
 
 
     @DataBoundConstructor
-    public vRABuildWrapper( List<PluginParam> params) {
+    public VRABuildWrapper( List<PluginParam> params) {
         this.params = params;
     }
 
@@ -88,7 +88,7 @@ public class vRABuildWrapper extends BuildWrapper {
 
             final Deployment deployment = newDeployment(listener.getLogger(), fparam);
 
-                if (deployment.Create()) {
+                if (deployment.create()) {
                     this.deployments.add(deployment);
                     //change counter to string and append be for build environment
                     String strCounter = Integer.toString(counter)+"be";
@@ -128,7 +128,7 @@ public class vRABuildWrapper extends BuildWrapper {
 
         for (Deployment deployment : reversedList) {
             // automatically delete the stack?
-            result = result && deployment.Destroy();
+            result = result && deployment.destroy();
         }
 
         return result;
@@ -136,8 +136,8 @@ public class vRABuildWrapper extends BuildWrapper {
 
     protected Deployment newDeployment(PrintStream logger, PluginParam params) throws IOException {
 
-        Boolean isURL = false;
-        String recipe = null;
+        //Boolean isURL = false;
+        //String recipe = null;
 
         return new Deployment(logger, params);
 

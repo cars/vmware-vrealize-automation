@@ -25,16 +25,16 @@ import java.util.logging.Logger;
 
 
 
-public class vRADeploymentBuildStep  extends Builder {
+public class VRADeploymentBuildStep  extends Builder {
 
-	private static final Logger LOGGER = Logger.getLogger(vRADeploymentBuildStep.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(VRADeploymentBuildStep.class.getName());
 
 	protected List<PluginParam> params;
 	protected List<Deployment> deployments = new ArrayList<Deployment>();
 	private List<RequestParam> requestParams;
 
 	@DataBoundConstructor
-	public vRADeploymentBuildStep(List<PluginParam> params) {
+	public VRADeploymentBuildStep(List<PluginParam> params) {
 		this.params = params;
 	}
 
@@ -48,20 +48,20 @@ public class vRADeploymentBuildStep  extends Builder {
 
 	@Override
 	public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
-		LOGGER.info("prebuild");
+		LOGGER.fine("prebuild");
 		return super.prebuild(build, listener);
 	}
 
 
 	@Override
 	public Action getProjectAction(AbstractProject<?, ?> project) {
-		LOGGER.info("getProjectAction");
+		LOGGER.fine("getProjectAction");
 		return super.getProjectAction(project);
 	}
 
 	@Override
 	public Collection<? extends Action> getProjectActions(AbstractProject<?, ?> project) {
-		LOGGER.info("getProjectActions");
+		LOGGER.fine("getProjectActions");
 		return super.getProjectActions(project);
 	}
 
@@ -69,7 +69,7 @@ public class vRADeploymentBuildStep  extends Builder {
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
 							throws InterruptedException, IOException {
-
+		LOGGER.entering(this.getClass().getSimpleName(),"perform()");
 		EnvVars env = build.getEnvironment(listener);
 		env.overrideAll(build.getBuildVariables());
 
@@ -93,7 +93,7 @@ public class vRADeploymentBuildStep  extends Builder {
 					}
 				}
 
-			// Resolve any environment variables in the parameters
+			// Resolve any environment variables in the parameters 
 			PluginParam fparam = new PluginParam(helper.replaceBuildParamWithValue(param.getServerUrl()),
 					helper.replaceBuildParamWithValue(param.getUserName()),
 					helper.replaceBuildParamWithValue(param.getPassword()),
@@ -104,7 +104,7 @@ public class vRADeploymentBuildStep  extends Builder {
 			final Deployment deployment = newDeployment(listener.getLogger(), fparam);
 
 
-			if (deployment.Create()) {
+			if (deployment.create()) {
 				this.deployments.add(deployment);
 				//change counter to string and append bs for build step
 				String strCounter = "BS_"+Integer.toString(counter);
@@ -121,16 +121,17 @@ public class vRADeploymentBuildStep  extends Builder {
 			}
 
 		}
+		LOGGER.exiting(this.getClass().getSimpleName(),"perform()");
 		return success;
 
 	}
 
 
 	protected Deployment newDeployment(PrintStream logger, PluginParam params) throws IOException {
-
+		LOGGER.entering(this.getClass().getSimpleName(),"perform()");
 		Boolean isURL = false;
 		String recipe = null;
-
+		LOGGER.exiting(this.getClass().getSimpleName(),"perform()");
 		return new Deployment(logger, params);
 
 	}
@@ -141,7 +142,7 @@ public class vRADeploymentBuildStep  extends Builder {
 	}
 
 	@Extension
-	public static final vRADeploymentBuildStep.DescriptorImpl DESCRIPTOR = new vRADeploymentBuildStep.DescriptorImpl();
+	public static final VRADeploymentBuildStep.DescriptorImpl DESCRIPTOR = new VRADeploymentBuildStep.DescriptorImpl();
 
 	public static class DescriptorImpl extends BuildStepDescriptor<Builder> {
 

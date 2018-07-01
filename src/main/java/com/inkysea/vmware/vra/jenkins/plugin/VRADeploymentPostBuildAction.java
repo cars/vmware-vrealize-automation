@@ -5,7 +5,6 @@
 package com.inkysea.vmware.vra.jenkins.plugin;
 
 import com.inkysea.vmware.vra.jenkins.plugin.model.Deployment;
-import com.inkysea.vmware.vra.jenkins.plugin.model.DestroyParam;
 import com.inkysea.vmware.vra.jenkins.plugin.model.PluginParam;
 import com.inkysea.vmware.vra.jenkins.plugin.model.RequestParam;
 import com.inkysea.vmware.vra.jenkins.plugin.util.EnvVariableResolver;
@@ -20,25 +19,26 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
 
-public class vRADeploymentDestroyPostBuildAction extends Notifier {
+public class VRADeploymentPostBuildAction extends Notifier {
 
-	private static final Logger LOGGER = Logger.getLogger(vRADeploymentDestroyPostBuildAction.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(VRADeploymentPostBuildAction.class.getName());
 
-	protected List<DestroyParam> destroyParams;
+	protected List<PluginParam> params;
 	protected List<Deployment> deployments = new ArrayList<Deployment>();
+	private List<RequestParam> requestParams;
 
 	@DataBoundConstructor
-	public vRADeploymentDestroyPostBuildAction(List<DestroyParam> destroyParams) {
-		this.destroyParams = destroyParams;
+	public VRADeploymentPostBuildAction(List<PluginParam> params) {
+		this.params = params;
 	}
 
-	// method name must match with the property field in config.jelly
-	public List<DestroyParam> getDestroyParams() {
-		return destroyParams;
+	public List<PluginParam> getParams() {
+		return params;
 	}
 
 	public BuildStepMonitor getRequiredMonitorService() {
@@ -76,23 +76,36 @@ public class vRADeploymentDestroyPostBuildAction extends Notifier {
 		boolean success = true;
 
 		int counter = 1;
-		for (DestroyParam param : destroyParams) {
+		for (PluginParam param : params) {
+
+			// Resolve any build variables included in the request parameters.
+			List<RequestParam> rparamResolved = new ArrayList<RequestParam>();;
+
+			for(RequestParam rparam : param.getRequestParams()){
+				String rparamString =  helper.replaceBuildParamWithValue(rparam.getRequestParam().toString());
+				rparamResolved.add(new RequestParam(rparamString));
+			}
 
 			// Resolve any environment variables in the parameters
-			DestroyParam fparam = new DestroyParam(helper.replaceBuildParamWithValue(param.getServerUrl()),
+			PluginParam fparam = new PluginParam(helper.replaceBuildParamWithValue(param.getServerUrl()),
 					helper.replaceBuildParamWithValue(param.getUserName()),
 					helper.replaceBuildParamWithValue(param.getPassword()),
 					helper.replaceBuildParamWithValue(param.getTenant()),
-					helper.replaceBuildParamWithValue(param.getDeploymentName()));
+					helper.replaceBuildParamWithValue(param.getBlueprintName()),
+					param.isWaitExec(),param.getRequestTemplate(), rparamResolved);
 
-			final Deployment deployment = new Deployment(listener.getLogger(), fparam);
-			if(deployment.Destroy(env.expand(param.getDeploymentName()))) {
+			final Deployment deployment = newDeployment(listener.getLogger(), fparam);
+
+
+			if (deployment.create()) {
 				this.deployments.add(deployment);
 
-				LOGGER.info("Success");
+				//change counter to string and append pb for build environment
+				String strCounter = "PB_"+Integer.toString(counter);
+				env.putAll(deployment.getDeploymentComponents(strCounter));
 				counter++;
 			} else {
-				LOGGER.warning("Failed");
+				build.setResult(Result.FAILURE);
 				success = false;
 				break;
 			}
@@ -103,20 +116,29 @@ public class vRADeploymentDestroyPostBuildAction extends Notifier {
 	}
 
 
+	protected Deployment newDeployment(PrintStream logger, PluginParam params) throws IOException {
+
+		Boolean isURL = false;
+		String recipe = null;
+
+		return new Deployment(logger, params);
+
+	}
+
 	@Override
 	public BuildStepDescriptor getDescriptor() {
 		return DESCRIPTOR;
 	}
 
 	@Extension
-	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
+	public static final VRADeploymentPostBuildAction.DescriptorImpl DESCRIPTOR = new VRADeploymentPostBuildAction.DescriptorImpl();
 
 	public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
 		@Override
 		public String getDisplayName() {
                     
-			return "Destroy vRealize Automation Deployment";
+			return "vRealize Automation Deployment";
 		}
 
 		@Override

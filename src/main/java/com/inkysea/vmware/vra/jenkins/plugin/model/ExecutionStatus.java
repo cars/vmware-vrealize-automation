@@ -9,6 +9,7 @@ public enum ExecutionStatus {
     REJECTED,
     PENDING_PRE_APPROVAL,
     PENDING_POST_APPROVAL,
-    IN_PROGRESS
+    IN_PROGRESS,
+    PARTIALLY_SUCCESSFUL
 
 }
