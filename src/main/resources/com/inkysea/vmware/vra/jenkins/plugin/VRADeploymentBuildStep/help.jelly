@@ -1,4 +1,0 @@
-<?jelly escape-by-default='true'?>
-<div>
-Provisions a vRA deployment environment as part of the build steps.
-</div>
