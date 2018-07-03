@@ -26,21 +26,18 @@
              <f:checkbox default="true" name="waitExec" />
         </f:entry>
 
-        <f:entry title="Request using Blueprint Template"  field="requestTemplate">
-            <f:checkbox default="false" name="requestTemplate" />
-        </f:entry>
-
-         <f:entry title="">
-                  <div align="right">
-                    <f:repeatableDeleteButton />
-                  </div>
+        <f:entry title="Destroy Deployment on job completion"  field="destroyDeployment">
+                     <f:checkbox default="true"  name="destroyDeployment" />
          </f:entry>
 
        <f:entry>
-             <f:repeatable name="requestParams" field="requestParams" noAddButton="false" add="Add Parameter">
+             <f:repeatable name="deploymentParms" field="deploymentParms" noAddButton="false" add="Add Parameter">
                  <table width="100%">
-                      <f:entry title="Parameter JSON">
-                         <f:textbox field="json" />
+                      <f:entry title="Parameter Name">
+                         <f:textbox field="name" />
+                         </f:entry>
+                         <f:entry title="Parameter Value">
+                         <f:textbox field="value" />
                          </f:entry>
                          <f:entry>
                          <div align="right" class="repeatable-delete show-if-only" style="margin-left: 1em;">
@@ -52,5 +49,11 @@
                  </table>
              </f:repeatable>
        </f:entry>
+
+        <f:entry title="">
+                 <div align="right">
+                   <f:repeatableDeleteButton />
+                 </div>
+        </f:entry>
 
 </j:jelly>

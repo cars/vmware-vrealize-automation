@@ -6,7 +6,7 @@ import com.inkysea.vmware.vra.jenkins.plugin.model.ExecutionStatus;
 import java.util.Properties;
 import java.io.IOException;
 import java.io.InputStream;
-
+import groovy.util.ConfigSlurper;
 
 /**
  * Created by kthieler on 2/23/16.
@@ -15,70 +15,61 @@ class RequestTest extends GroovyTestCase {
 
     private PluginParam params;
     private PrintStream logger;
-
+    private ConfigObject testConfig;
 
 
     RequestTest() {
 
-        Properties prop = new Properties();
-        InputStream input = null;
-
         try {
 
-            String filename = "config.properties";
-            input = getClass().getClassLoader().getResourceAsStream(filename);
-            if(input==null){
-                System.out.println("Sorry, unable to find " + filename);
-                return;
-            }
-
-            prop.load(input);
-            this.params = new PluginParam(prop.getProperty("vRAURL"),
-                                        prop.getProperty("userName"),
-                                        prop.getProperty("password"),
-                                        prop.getProperty("tenant"),
-                                        prop.getProperty("bluePrintName"),
-                                        prop.getProperty("waitExec"))
+            testConfig = new ConfigSlurper().parse(new File('src/test/resources/config.properties').toURL());
+            this.params = new PluginParam(testConfig.vRAURL,
+                    testConfig.userName,
+                    testConfig.password,
+                    testConfig.tenant,
+                    testConfig.catalogItemName,
+                    testConfig.waitExec,
+                    false,
+                    null
+            )                             
 
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally{
-            if(input!=null){
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+ 
         }
     }
 
 
     @Test
     public void testfetchBlueprint() {
-        Request request = new Request(logger, params)
-        def token = request.fetchBluePrint();
+        System.out.println("\n\n************___testfetchBlueprint___*************");
+        Request request = new Request(logger, params);
+        def token = request.fetchBlueprint();
         logger.println(token)
     }
 
     @Test
-    public void testGetBluePrintTemplate() {
+    public void testGetBlueprintTemplate() {
+        System.out.println("\n\n************___testGetBlueprintTemplate___*************");
         Request request = new Request(logger, params)
-        def token = request.GetBluePrintTemplate();
+        def token = request.getBlueprintTemplate();
+        System.out.println("Token is :" + token)
         logger.println(token)
     }
 
     @Test
-    public void testProvisionBluePrint() {
+    public void testProvisionBlueprint() {
+        System.out.println("\n\n************___testProvisionBlueprint___*************");        
         Request request = new Request(logger, params)
-        def token = request.ProvisionBluePrint();
+        def token = request.provisionBlueprint();
 
-        while (!request.IsRequestComplete()) {
-            System.out.println("Execution status : " + request.RequestStatus().toString());
+        while (!request.isRequestComplete()) {
+            System.out.println("Execution status : " + request.requestStatus().toString());
             Thread.sleep(10 * 1000);
         }
 
-        switch (request.RequestStatus().toString()) {
+        switch (request.requestStatus().toString()) {
             case "SUCCESSFUL":
                 System.out.println("Requested complete successfully");
                 break;
@@ -89,7 +80,7 @@ class RequestTest extends GroovyTestCase {
                 throw new IOException("Request execution cancelled. Please go to vRA for more details");
         }
 
-        System.out.println("Resource View :"+request.GetResourceView().toString());
+        System.out.println("Resource View :"+request.getResourceView().toString());
 
     }
 

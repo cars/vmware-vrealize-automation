@@ -17,9 +17,10 @@ public class Request  {
 
     private RestClient restclient;
     private PluginParam params;
-    private DestroyParam dparams;
+    private DestroyParam dParams;
 
     private ExecutionStatus executionStatus;
+    private String jobStateName;
     private String REQUESTS_ID_URL = "";
     private String FETCH_CATALOG_ITEM = "";
     private String PROVISION_BLUEPRINT = "";
@@ -40,9 +41,12 @@ public class Request  {
 
     private String AUTH_TOKEN = "";
     private PrintStream logger;
+    //Catalog Item GUID
     private String catalogId;
+    // Request # of the submitted request
     public String requestID;
-    public JsonObject bluePrintTemplate;
+
+    public JsonObject blueprintTemplate;
 
 
 
@@ -64,9 +68,13 @@ public class Request  {
         String catalogServiceApiUrl = params.getServerUrl().replaceFirst("/+$", "")
                                                 + "/catalog-service/api/";
 
+        //Get Information about a single reqeust                                    
         this.REQUESTS_ID_URL = catalogServiceApiUrl + "consumer/requests/%s";
+        // Get information about alll requests
         this.REQUESTS_POST_URL = catalogServiceApiUrl + "consumer/requests/";
+        // 
         this.FETCH_CATALOG_ITEM = catalogServiceApiUrl + "consumer/entitledCatalogItemViews?$filter=name+eq+'%s'";
+
         this.PROVISION_BLUEPRINT = catalogServiceApiUrl + "consumer/entitledCatalogItems/%s/requests";
         this.REQUEST_RESOURCEVIEW_REST = catalogServiceApiUrl + "consumer/requests/%s/resourceViews";
         this.RESOURCE_ACTIONS_REQUEST_TEMPLATE_REST =  catalogServiceApiUrl + "consumer/resources/%s/actions/%s/requests/template";
@@ -85,21 +93,21 @@ public class Request  {
 
     }
 
-    public Request(PrintStream logger, DestroyParam dparams) throws IOException {
+    public Request(PrintStream logger, DestroyParam dParams) throws IOException {
     // Constructor for post build actions to destroy deployment
 
-        this.dparams = dparams;
+        this.dParams = dParams;
         this.logger = logger;
 
 
         try {
-            this.restclient  = new RestClient(dparams);
+            this.restclient  = new RestClient(dParams);
             this.AUTH_TOKEN = restclient.AuthToken();
         }catch ( IOException e) {
             e.printStackTrace();
         }
 
-        String catalogServiceApiUrl = dparams.getServerUrl().replaceFirst("/+$", "") + "/catalog-service/api/";
+        String catalogServiceApiUrl = dParams.getServerUrl().replaceFirst("/+$", "") + "/catalog-service/api/";
 
         this.REQUESTS_ID_URL = catalogServiceApiUrl + "consumer/requests/%s";
         this.REQUESTS_POST_URL = catalogServiceApiUrl + "consumer/requests/";
@@ -184,7 +192,7 @@ public class Request  {
         return stringJsonAsObject;
     }
 
-    public JsonObject Packages(String file, String resolutionMode) throws IOException {
+    public JsonObject packages(String file, String resolutionMode) throws IOException {
 
         String url = PACKAGES_REST.replace(' ', '+');
         System.out.println("Using :" + url);
@@ -209,47 +217,48 @@ public class Request  {
     }
 
 
-    public JsonObject fetchBluePrint() throws IOException {
+    public JsonObject fetchBlueprint() throws IOException {
         JsonObject response = null;
-        System.out.println("Fetching BP :" + params.getBluePrintName());
+        System.out.println("Fetching BP :" + params.getBlueprintName());
 
-        String url = String.format(FETCH_CATALOG_ITEM, params.getBluePrintName()).replace(' ', '+');
+        String url = String.format(FETCH_CATALOG_ITEM, params.getBlueprintName()).replace(' ', '+');
         System.out.println("Using :" + url);
 
         HttpResponse vRAResponse = restclient.Get(url);
         String responseAsJson = restclient.FormatResponseAsJsonString(vRAResponse);
-        System.out.println("JSON :" + responseAsJson);
+        System.out.println("JSON : " + responseAsJson);
 
         JsonObject stringJsonAsObject = restclient.FormJsonObject(responseAsJson);
         JsonElement contentElement = stringJsonAsObject.get("content");
-        System.out.println("Parsing content :");
+        System.out.println("Looking at contentElement JSON");
 
         if (contentElement == null) {
             throw new IOException(responseAsJson);
         } else {
+            System.out.println("Parsing content from JSON "+contentElement.toString());
             JsonArray contents = contentElement.getAsJsonArray();
+            System.out.println("# of content elements= " +contents.size());
             System.out.println("Array content :");
 
             if (contents.size() == 1) {
-                response = contents.get(0).getAsJsonObject();
                 System.out.println("Unique :");
-
+                response = contents.get(0).getAsJsonObject();
             } else {
                 if (contents.size() > 1) {
-                    throw new IOException("More than one blueprint with name " + params.getBluePrintName() + " found");
+                    throw new IOException("More than one blueprint with name " + params.getBlueprintName() + " found");
                 } else if (contents.size() < 1) {
-                    throw new IOException("Blueprint with name " + params.getBluePrintName() + " not found");
+                    throw new IOException("Blueprint with name " + params.getBlueprintName() + " not found");
                 }
             }
         }
+        System.out.println("Returning ["+stringJsonAsObject.toString()+"]");
         return stringJsonAsObject;
     }
 
-    public JsonObject GetBluePrintTemplate() throws IOException {
+    public JsonObject getBlueprintTemplate() throws IOException {
 
 
-        JsonObject response = this.fetchBluePrint();
-
+        JsonObject response = this.fetchBlueprint();
         JsonArray catalogItemContentArray = response.getAsJsonArray("content");
 
         this.catalogId = catalogItemContentArray.get(0).getAsJsonObject()
@@ -261,47 +270,75 @@ public class Request  {
 
         System.out.println("Links Array: "+linkArray);
 
-
         String templateURL = linkArray.get(0).getAsJsonObject().get("href").getAsString();
 
-        String url = templateURL;
-        System.out.println("Get BP Template: "+templateURL);
+        System.out.println("Get BP Template(Raw): "+templateURL);
+        // vRA Returns funky URL for the templateURL: 
+        // ex:  https://vraurl/catalog-service/api/consumer/entitledCatalogItems/d4d3a87f-063d-44af-84bf-dcaa205b48c1/requests/template{?businessGroupId,requestedFor}
+        // so strip off the bits after the '{' to get a workable URL
+        String url = templateURL.split("\\{")[0];
+        System.out.println("Get BP Template(Revised): "+url);
+        
 
         HttpResponse vRAResponse = restclient.Get(url);
         String responseAsJson = restclient.FormatResponseAsJsonString(vRAResponse);
         System.out.println("BP JSON : "+responseAsJson);
 
-        this.bluePrintTemplate = restclient.FormJsonObject(responseAsJson);
+        this.blueprintTemplate = restclient.FormJsonObject(responseAsJson);
 
-        return this.bluePrintTemplate ;
+        return this.blueprintTemplate ;
     }
 
-    public JsonObject ProvisionBluePrint() throws IOException {
+    public JsonObject provisionBlueprint() throws IOException {
 
-        JsonObject template = this.GetBluePrintTemplate();
+        JsonObject template = this.getBlueprintTemplate();
 
-        JsonObject response = ProvisionBluePrint(template);
+        JsonObject response = provisionBlueprint(template);
 
         return response;
     }
 
-    public JsonObject ProvisionBluePrint(JsonObject template) throws IOException {
+    public JsonObject provisionBlueprint(JsonObject template) throws IOException {
 
         String url = String.format(PROVISION_BLUEPRINT, this.catalogId).replace(' ', '+');
-        Gson gson = new Gson();
+        //Gson gson = new Gson();
 
-        System.out.println("Using Template : "+template.toString());
+        System.out.println("Provisioning Blueprint Using Template : "+template.toString());
 
         HttpResponse httpResponse = restclient.Post(url, template.toString());
         String responseAsJson = restclient.FormatResponseAsJsonString(httpResponse);
         JsonObject response = restclient.FormJsonObject(responseAsJson);
+        System.out.println("ProvBP Response = |"+ response.toString());
         this.requestID = response.get("id").getAsString();
+        System.out.println("Got Request ID: "+ this.requestID);
+        //String requestNum = response.get("requestNumber").getAsString();
+        //System.out.println("Got Request #"+requestNum);
         return response;
     }
+    //refer to jobs  statename property
+    public String requestJobState() throws IOException {
 
+        String url = String.format(REQUESTS_ID_URL, this.requestID).replace(' ', '+');
 
+        System.out.println("Request URL: "+url);
 
-    public ExecutionStatus RequestStatus() throws IOException {
+        HttpResponse vRAResponse = restclient.Get(url);
+        System.out.println("Got Response : "+ vRAResponse.toString());
+
+        String responseAsJson = restclient.FormatResponseAsJsonString(vRAResponse);
+
+        System.out.println("BP JSON : "+responseAsJson);
+        JsonObject stringJsonAsObject = restclient.FormJsonObject(responseAsJson);
+        String state = stringJsonAsObject.get("phase").getAsString().toUpperCase();
+
+        System.out.println("Request StateName : "+state);
+     
+        //this.jobStateName = state;
+
+        return state;
+    }
+    // refers to the job phase
+    public ExecutionStatus requestStatus() throws IOException {
 
         String url = String.format(REQUESTS_ID_URL, this.requestID).replace(' ', '+');
 
@@ -325,12 +362,13 @@ public class Request  {
         return status;
     }
 
-    public boolean IsRequestComplete () throws IOException {
+    public boolean isRequestComplete () throws IOException {
 
-        switch (RequestStatus()) {
+        switch (requestStatus()) {
             case SUCCESSFUL:
             case FAILED:
             case REJECTED:
+            case PARTIALLY_SUCCESSFUL:
                 return true;
             case PENDING_PRE_APPROVAL:
                 return false;
@@ -342,13 +380,13 @@ public class Request  {
 
     }
 
-    public JsonObject GetRequestResourceView(String reqID) throws IOException {
+    public JsonObject getRequestResourceView(String reqID) throws IOException {
         this.requestID = reqID;
-        JsonObject responseAsJSON = GetResourceView();
+        JsonObject responseAsJSON = getResourceView();
         return responseAsJSON;
     }
 
-    public JsonObject GetRequestResourceView() throws IOException {
+    public JsonObject getRequestResourceView() throws IOException {
         //  get /consumer/requests/{ID}/resourceViews   search for...
 
         String url = String.format(REQUEST_RESOURCEVIEW_REST, this.requestID).replace(' ', '+');
@@ -364,7 +402,7 @@ public class Request  {
 
     }
 
-    public JsonObject GetResourceView() throws IOException {
+    public JsonObject getResourceView() throws IOException {
         //  get /consumer/requests/{ID}/resourceViews   search for...
 
         String url = String.format(RESOURCEVIEW_REST).replace(' ', '+');
@@ -380,7 +418,7 @@ public class Request  {
 
     }
 
-    public JsonObject GetResourceView(String deploymentName) throws IOException {
+    public JsonObject getResourceView(String deploymentName) throws IOException {
         //  get /consumer/requests/{ID}/resourceViews   search for...
 
         String url = String.format(RESOURCEVIEW_REST+"?$filter=name+eq+'%s'", deploymentName).replace(' ', '+');
@@ -396,7 +434,7 @@ public class Request  {
 
     }
 
-    public JsonObject GetCatalogItemByName(String catalogItemName) throws IOException {
+    public JsonObject getCatalogItemByName(String catalogItemName) throws IOException {
         //  get /consumer/requests/{ID}/resourceViews   search for...
 
         String url = String.format(CATALOGITEMS_REST+"?$filter=name+eq+'%s'", catalogItemName).replace(' ', '+');
@@ -427,7 +465,7 @@ public class Request  {
 
     }
 
-    public JsonObject GetBlueprint(String blueprintName) throws IOException{
+    public JsonObject getBlueprint(String blueprintName) throws IOException{
 
         ///calls {{vRAURL}}/composition-service/api/blueprints/blueprintName
 
@@ -445,7 +483,7 @@ public class Request  {
 
 
 
-    public JsonObject PutBluprintStatus(String blueprintName, String body) throws IOException{
+    public JsonObject putBluprintStatus(String blueprintName, String body) throws IOException{
         // {{vRAURL}}/composition-service/api/blueprints/CommerceAppcopycopy/status
         System.out.println("Publishing REST :"+BLUEPRINTS_STATUS_REST);
         System.out.println("BP NAME :"+blueprintName);
@@ -462,7 +500,7 @@ public class Request  {
         return responseAsJSON;
     }
 
-    public JsonObject PutCatalogItem(String catalogId, String body) throws IOException{
+    public JsonObject putCatalogItem(String catalogId, String body) throws IOException{
         // /catalog-service/api/catalogItems/a29501cd-179a-4be5-8096-f29ad4847521
 
         String url = CATALOGITEMS_REST+"/"+catalogId;
@@ -495,28 +533,21 @@ public class Request  {
             JsonObject responseAsJSON = restclient.FormJsonObject(response);
 
             return responseAsJSON;
-
         //}
-
     }
 
 
     public JsonObject getResourceActionsRequestTemplate(String resourceID, String actionID ) throws IOException{
-
         String url = String.format(RESOURCE_ACTIONS_REQUEST_TEMPLATE_REST, resourceID, actionID ).replace(' ', '+');
         System.out.println("Using :" + url);
-
         HttpResponse vRAResponse = restclient.Get(url);
         String response = restclient.FormatResponseAsJsonString(vRAResponse);
         System.out.println("JSON :" + response);
-
         JsonObject responseAsJSON = restclient.FormJsonObject(response);
-
         return responseAsJSON;
-
     }
 
-    public void ResourceActionsRequest(String resourceID, String actionID, JsonObject jsonBody ) throws IOException{
+    public void resourceActionsRequest(String resourceID, String actionID, JsonObject jsonBody ) throws IOException{
 
         String url = String.format(RESOURCE_ACTIONS_REQUEST_REST, resourceID, actionID ).replace(' ', '+');
         System.out.println("Using :" + url);
@@ -532,17 +563,29 @@ public class Request  {
     }
 
 
-    public void PostRequestJson( String jsonBody ) throws IOException{
+    public void postRequestJson( String jsonBody ) throws IOException{
         JsonObject responseAsJSON = null;
 
         String url = String.format(REQUESTS_POST_URL).replace(' ', '+');
-        System.out.println("Using :" + url);
+        System.out.println("PostRequestJson Using :" + url);
+        System.out.println("PostRequestJson JSON :" + jsonBody);
+        //url = String.format(PROVISION_BLUEPRINT).replace(' ', '+');
+        //System.out.println("Really Posting Using :" + url);
 
-        HttpResponse vRAResponse = restclient.Post(url, jsonBody );
+        //HttpResponse vRAResponse = restclient.Post(url, jsonBody );
+        HttpResponse vRAResponse = restclient.Get(url); //, jsonBody );
 
-        System.out.println("HTTP Response :" + vRAResponse);
+        System.out.println("HTTP Response :" + vRAResponse.toString());
 
-        if ( vRAResponse.getStatusLine().getStatusCode() != 201 ){
+       // CRTDEBUG
+       String response = restclient.FormatResponseAsJsonString(vRAResponse);
+       if ( ! response.equals("") ) {
+            responseAsJSON = restclient.FormJsonObject(response);
+            System.out.println("JSON :" + responseAsJSON);
+        }
+        //CRTDEBUG
+        //if ( vRAResponse.getStatusLine().getStatusCode() != 201 ){
+        if ( vRAResponse.getStatusLine().getStatusCode() != 200 ){
             throw new IOException("Received invalid response from vRA : \n HTTP Response: "+ vRAResponse +
                     "\n JSON Response :" + responseAsJSON );
         }else{
@@ -552,34 +595,30 @@ public class Request  {
 
 
     }
-    public void PostRequest( String jsonBody ) throws IOException {
+    public void postRequest( String jsonBody ) throws IOException {
 
         JsonObject responseAsJSON = null;
 
         String url = String.format(REQUESTS_POST_URL).replace(' ', '+');
-        System.out.println("Using :" + url);
+        System.out.println("PostRequest Using :" + url);
+        System.out.println("PostRequest JSON :" + jsonBody);
 
-        HttpResponse vRAResponse = restclient.Post(url, jsonBody );
+        //HttpResponse vRAResponse = restclient.Post(url, jsonBody );
+        HttpResponse vRAResponse = restclient.Get(url); //, jsonBody );
         String response = restclient.FormatResponseAsJsonString(vRAResponse);
 
         System.out.println("HTTP Response :" + vRAResponse);
-
         System.out.println("JSON Response:" + response);
 
-
         if ( ! response.equals("") ) {
-
             responseAsJSON = restclient.FormJsonObject(response);
             System.out.println("JSON :" + responseAsJSON);
-
-
         }
-
-        if ( vRAResponse.getStatusLine().getStatusCode() != 201 ){
+        //if ( vRAResponse.getStatusLine().getStatusCode() != 201 ){
+        if ( vRAResponse.getStatusLine().getStatusCode() != 20 ){
             throw new IOException("Received invalid response from vRA : \n HTTP Response: "+ vRAResponse +
                                    "\n JSON Response :" + responseAsJSON );
         }
-
 
     }
 

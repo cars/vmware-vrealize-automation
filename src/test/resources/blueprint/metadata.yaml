@@ -1,0 +1,7 @@
+name: "auto-generated-pkg-39b3a704-3efb-4871-abb4-c15a44b4709b"
+productVersion: "7.3.0-SNAPSHOT"
+data:
+- locator: "composite-blueprint/DockerPhotonOS.yaml"
+  name: "Docker - PhotonOS"
+  description: "Docker - PhotonOS"
+exportTime: "2017-08-20T22:24:18.885Z"
