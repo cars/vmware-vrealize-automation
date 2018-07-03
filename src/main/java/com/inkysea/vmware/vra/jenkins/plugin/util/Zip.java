@@ -53,7 +53,8 @@ public class Zip {
            // String entryName = getEntryName(INPUT_DIRECTORY, file);
 
 
-            if ( ! relative.startsWith(".") &! relative.equalsIgnoreCase(ZIP_FILE.toString())) {
+            //if ( ! relative.startsWith(".") &! relative.equalsIgnoreCase(ZIP_FILE.toString())) {
+            if (!(  relative.startsWith(".") || relative.equalsIgnoreCase(ZIP_FILE.toString()))) {
 
                 System.out.println("Adding file name "+ relative + " to "+ZIP_FILE_ABSOLUTE_PATH);
 

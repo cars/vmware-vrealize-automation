@@ -66,13 +66,13 @@ public class RestClient {
 
         }
 
-        public RestClient( DestroyParam dparams) throws IOException {
+        public RestClient( DestroyParam dParams) throws IOException {
 
-            this.AUTH_REST_URL = dparams.getServerUrl() + "/identity/api/tokens";
+            this.AUTH_REST_URL = dParams.getServerUrl() + "/identity/api/tokens";
 
-            this.userName = dparams.getUserName();
-            this.password = dparams.getPassword();
-            this.tenant   = dparams.getTenant();
+            this.userName = dParams.getUserName();
+            this.password = dParams.getPassword();
+            this.tenant   = dParams.getTenant();
 
             this.token = AuthToken();
 

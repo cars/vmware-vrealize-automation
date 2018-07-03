@@ -17,9 +17,10 @@ public class Request  {
 
     private RestClient restclient;
     private PluginParam params;
-    private DestroyParam dparams;
+    private DestroyParam dParams;
 
     private ExecutionStatus executionStatus;
+    private String jobStateName;
     private String REQUESTS_ID_URL = "";
     private String FETCH_CATALOG_ITEM = "";
     private String PROVISION_BLUEPRINT = "";
@@ -92,21 +93,21 @@ public class Request  {
 
     }
 
-    public Request(PrintStream logger, DestroyParam dparams) throws IOException {
+    public Request(PrintStream logger, DestroyParam dParams) throws IOException {
     // Constructor for post build actions to destroy deployment
 
-        this.dparams = dparams;
+        this.dParams = dParams;
         this.logger = logger;
 
 
         try {
-            this.restclient  = new RestClient(dparams);
+            this.restclient  = new RestClient(dParams);
             this.AUTH_TOKEN = restclient.AuthToken();
         }catch ( IOException e) {
             e.printStackTrace();
         }
 
-        String catalogServiceApiUrl = dparams.getServerUrl().replaceFirst("/+$", "") + "/catalog-service/api/";
+        String catalogServiceApiUrl = dParams.getServerUrl().replaceFirst("/+$", "") + "/catalog-service/api/";
 
         this.REQUESTS_ID_URL = catalogServiceApiUrl + "consumer/requests/%s";
         this.REQUESTS_POST_URL = catalogServiceApiUrl + "consumer/requests/";
@@ -191,7 +192,7 @@ public class Request  {
         return stringJsonAsObject;
     }
 
-    public JsonObject Packages(String file, String resolutionMode) throws IOException {
+    public JsonObject packages(String file, String resolutionMode) throws IOException {
 
         String url = PACKAGES_REST.replace(' ', '+');
         System.out.println("Using :" + url);
@@ -314,9 +315,29 @@ public class Request  {
         //System.out.println("Got Request #"+requestNum);
         return response;
     }
+    //refer to jobs  statename property
+    public String requestJobState() throws IOException {
 
+        String url = String.format(REQUESTS_ID_URL, this.requestID).replace(' ', '+');
 
+        System.out.println("Request URL: "+url);
 
+        HttpResponse vRAResponse = restclient.Get(url);
+        System.out.println("Got Response : "+ vRAResponse.toString());
+
+        String responseAsJson = restclient.FormatResponseAsJsonString(vRAResponse);
+
+        System.out.println("BP JSON : "+responseAsJson);
+        JsonObject stringJsonAsObject = restclient.FormJsonObject(responseAsJson);
+        String state = stringJsonAsObject.get("phase").getAsString().toUpperCase();
+
+        System.out.println("Request StateName : "+state);
+     
+        //this.jobStateName = state;
+
+        return state;
+    }
+    // refers to the job phase
     public ExecutionStatus requestStatus() throws IOException {
 
         String url = String.format(REQUESTS_ID_URL, this.requestID).replace(' ', '+');

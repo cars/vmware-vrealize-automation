@@ -153,12 +153,20 @@ public class Deployment {
                 Thread.sleep(10 * 1000);
             }
 
+            //Need to decide whether to let PARTIALLY_SUCCESSFUL = Success or failure? 
+            // right now it's a failure
             switch (request.requestStatus()) {
                 case SUCCESSFUL:
-                    System.out.println("Request completed successfully");
-                    deploymentResources();
-                    rcode = true;
-                    break;
+                    if (request.requestJobState().equals("SUCCESSFUL")){
+                        System.out.println("Request completed successfully");
+                        deploymentResources();
+                        rcode = true;
+                        break;
+                    } else {
+                        System.out.println("Request execution marked [partially successfull| " +request.requestJobState()+ "] failing build");
+                        rcode = false;
+                        throw new IOException("Request execution failed(Partial Success|"+request.requestJobState()+"|: Please go to vRA for more details");
+                    }
                 case FAILED:
                     rcode = false;
                     throw new IOException("Request execution failed. Please go to vRA for more details");
@@ -167,7 +175,7 @@ public class Deployment {
                     throw new IOException("Request execution cancelled. Please go to vRA for more details");
             }
         }
-        LOGGER.entering(this.getClass().getSimpleName(),"create()");	
+        LOGGER.exiting(this.getClass().getSimpleName(),"create()");	
         return rcode;
 
     }

@@ -65,7 +65,7 @@ public class Blueprint {
             }
 
             // load package
-            validate = request.Packages(this.params.getBlueprintPath()+"/"+zipFile, "overwrite" );
+            validate = request.packages(this.params.getBlueprintPath()+"/"+zipFile, "overwrite" );
 
             status = validate.getAsJsonObject().get("operationStatus").getAsString();
 

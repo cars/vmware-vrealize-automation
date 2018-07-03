@@ -28,7 +28,8 @@ public class DestroyParam extends AbstractDescribableImpl<DestroyParam> implemen
     private String password;
     private String tenant;
     private String deploymentName;
-    //private boolean waitExec;
+    private boolean waitExec;
+    private boolean destroyDeployment;
 
     @DataBoundConstructor
     public DestroyParam(String serverUrl, String userName, String password, String tenant,
