@@ -15,3 +15,5 @@ work/
 *.iml
 *.ipr
 *.iws
+
+.vscode/

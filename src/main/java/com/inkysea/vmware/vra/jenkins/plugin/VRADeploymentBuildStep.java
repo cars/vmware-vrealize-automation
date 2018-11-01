@@ -48,20 +48,20 @@ public class VRADeploymentBuildStep  extends Builder {
 
 	@Override
 	public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
-		LOGGER.fine("prebuild");
+		LOGGER.finest("prebuild");
 		return super.prebuild(build, listener);
 	}
 
 
 	@Override
 	public Action getProjectAction(AbstractProject<?, ?> project) {
-		LOGGER.fine("getProjectAction");
+		LOGGER.finest("getProjectAction");
 		return super.getProjectAction(project);
 	}
 
 	@Override
 	public Collection<? extends Action> getProjectActions(AbstractProject<?, ?> project) {
-		LOGGER.fine("getProjectActions");
+		LOGGER.finest("getProjectActions");
 		return super.getProjectActions(project);
 	}
 
@@ -128,10 +128,10 @@ public class VRADeploymentBuildStep  extends Builder {
 
 
 	protected Deployment newDeployment(PrintStream logger, PluginParam params) throws IOException {
-		LOGGER.entering(this.getClass().getSimpleName(),"perform()");
+		LOGGER.entering(this.getClass().getSimpleName(),"newDeployment()");
 		Boolean isURL = false;
 		String recipe = null;
-		LOGGER.exiting(this.getClass().getSimpleName(),"perform()");
+		LOGGER.exiting(this.getClass().getSimpleName(),"newDeployment()");
 		return new Deployment(logger, params);
 
 	}

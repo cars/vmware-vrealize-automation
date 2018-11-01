@@ -69,7 +69,6 @@ public class Deployment {
 
         this.request  = new Request(logger, params);
 
-
     }
 
     public boolean create() throws IOException, InterruptedException {
@@ -182,6 +181,7 @@ public class Deployment {
 
     //creates json request for provisioning blueprint? 
     private JsonObject requestCreateJSON() {
+        LOGGER.entering(this.getClass().getSimpleName(),"requesCreateJSON()");	
 
         
         JsonObject requestJson = new JsonObject();
@@ -233,6 +233,7 @@ public class Deployment {
 
         requestData.add("entries", entriesArray);
         requestJson.add("requestData", requestData);
+        LOGGER.exiting(this.getClass().getSimpleName(),"requestCreateJSON()");	
 
         return requestJson;
 
@@ -240,44 +241,52 @@ public class Deployment {
 
 
     private void getMachineList() {
-
+        LOGGER.entering(this.getClass().getSimpleName(),"getMachineList()");
         JsonArray contentArray = this.deploymentResources.getAsJsonArray("content");
-
         for (JsonElement content : contentArray) {
-
+            ArrayList<String> tmpmachineDataList = new ArrayList<String>();
+            LOGGER.finer("This resourceType is ["+ content.getAsJsonObject().get("resourceType").getAsString()+"]");
             if (content.getAsJsonObject().get("resourceType").getAsString().contains("Infrastructure.Virtual")) {
-
+                //LOGGER.finest("looking at "+ content.toString());
                 JsonObject jsonData = content.getAsJsonObject().getAsJsonObject("data");
                 JsonArray  networkArray = jsonData.getAsJsonArray("NETWORK_LIST");
-
+                LOGGER.finest("Adding Component ["+jsonData.getAsJsonObject().get("Component").getAsString()+"]");
                 componentSet.add(jsonData.getAsJsonObject().get("Component").getAsString());
 
                 for (JsonElement e : networkArray) {
                     JsonElement jsonNetworkData = e.getAsJsonObject().get("data");
-
-                    machineDataList.add(content.getAsJsonObject().get("resourceType").getAsString());
-                    machineDataList.add(jsonData.getAsJsonObject().get("Component").getAsString());
-                    machineDataList.add(content.getAsJsonObject().get("name").getAsString());
-                    machineDataList.add(jsonNetworkData.getAsJsonObject().get("NETWORK_NAME").getAsString());
-                    machineDataList.add(jsonNetworkData.getAsJsonObject().get("NETWORK_MAC_ADDRESS").getAsString());
-                    //Based on personal experience may have situation in which NIC is present on a network but doesn't 
+                    LOGGER.finest("Processing networkArray elements for this resource");
+                    tmpmachineDataList.add(content.getAsJsonObject().get("resourceType").getAsString());
+                    tmpmachineDataList.add(jsonData.getAsJsonObject().get("Component").getAsString());
+                    tmpmachineDataList.add(content.getAsJsonObject().get("name").getAsString());
+                    tmpmachineDataList.add(jsonNetworkData.getAsJsonObject().get("NETWORK_NAME").getAsString());
+                    LOGGER.finest("MAC Address is ["+jsonNetworkData.getAsJsonObject().get("NETWORK_MAC_ADDRESS").getAsString()+"]");
+                    tmpmachineDataList.add(jsonNetworkData.getAsJsonObject().get("NETWORK_MAC_ADDRESS").getAsString());
+                                        //Based on personal experience may have situation in which NIC is present on a network but doesn't 
                     // have an IP assigned, ex: DHCP
                     //
-                    try {
-                        machineDataList.add(jsonNetworkData.getAsJsonObject().get("NETWORK_ADDRESS").getAsString());
-                    } catch (NullPointerException er){
-                        machineDataList.add("AddressUnset");
+                    LOGGER.finest("Trying to check NETWORK_ADDRESS");
+                    if (jsonNetworkData.getAsJsonObject().has("NETWORK_ADDRESS")){
+                        LOGGER.finest("NETWORK_ADDRESS seems to exist");
+                        LOGGER.finest("Network_address value is ["+ jsonNetworkData.getAsJsonObject().get("NETWORK_ADDRESS").getAsString()+"]");
+                        tmpmachineDataList.add(jsonNetworkData.getAsJsonObject().get("NETWORK_ADDRESS").getAsString());
+                    } else {
+                        LOGGER.finest("NETWORK_ADDRESS does _NOT_ seem to exist");
+                        tmpmachineDataList.add("AddressUnset");
                     } 
-                    machineList.add(machineDataList);
+                    LOGGER.finest("Doing machineList.add");
+                    machineList.add(tmpmachineDataList);
+                    LOGGER.finest("Back from machineList.add");
 
                 }
-
             }
         }
+        LOGGER.exiting(this.getClass().getSimpleName(),"getMachineList()");	
 
     }
 
     private void getLoadBalancerList() {
+        LOGGER.entering(this.getClass().getSimpleName(),"getLoadBalancerList()");	
 
         JsonArray contentArray = this.deploymentResources.getAsJsonArray("content");
 
@@ -297,28 +306,33 @@ public class Deployment {
 
             }
 
+        LOGGER.exiting(this.getClass().getSimpleName(),"getLoadBalancerList()");	
     }
 
     public Map <String, String> getMachineHashMap() throws IOException {
-
+        LOGGER.entering(this.getClass().getSimpleName(),"getMachineHashMap()");	
         Map machineMap = null;
 
         getMachineList();
 
 
         for( List machine : this.machineList ){
-            //creat map named grup__machine_name__network_name :  network address
+            //creat map named group__machine_name__network_name :  network address
             for ( Object data : machine ){
+                LOGGER.finest("Building Map? "+data.toString());
                 System.out.println(data.toString());
             }
 
         }
 
+        LOGGER.exiting(this.getClass().getSimpleName(),"getMachineHashMap()");	
         return machineMap;
     }
 
     public Map<String, String> getDeploymentComponents(String count) {
+        LOGGER.entering(this.getClass().getSimpleName(),"getDeploymentComponents()");	
         // Prefix outputs with stack name to prevent collisions with other stacks created in the same build.
+        LOGGER.finer("Got "+ count.toString()+" components");
         HashMap<String, String> map = new HashMap<String, String>();
 
         String deploymentName = getDeploymentName();
@@ -331,7 +345,8 @@ public class Deployment {
 
         int componentCounter=1;
         for ( String component : componentSet ) {
-
+            LOGGER.finest("ComponentSet: Deployment Component ["+component.toUpperCase()+"]");
+            LOGGER.finest("counter =["+componentCounter+"]");
             String componentPrefix = prefixDep + "COMPONENT" + componentCounter;
             String componentMachinePrefix = "";
 
@@ -341,7 +356,9 @@ public class Deployment {
             Set<String> machineSet = new HashSet<String>();
 
             for (List machine : this.machineList) {
+                LOGGER.finest("MachineList:Machine.get(1).toString()="+machine.get(1).toString());
                 if (machine.get(1).toString().equalsIgnoreCase(component)) {
+                    LOGGER.finest("Adding ["+ machine.get(2).toString()+"] to machineSet");
                     machineSet.add(machine.get(2).toString());
                 }
             }
@@ -350,15 +367,22 @@ public class Deployment {
             Set<String> networkSet = new HashSet<String>();
 
             for (String machines : machineSet) {
-
+                LOGGER.finest("MachineSet:"+ machines);
                 for (List machine : this.machineList) {
+                    LOGGER.finest("In For list machine: this.machinelist");
+                    String get1 = machine.get(1).toString();
+                    String get2 = machine.get(2).toString();
+                    String get3 = machine.get(3).toString();
+                    String get4 = machine.get(4).toString();
                     if (machine.get(1).toString().equalsIgnoreCase(component)
                             && machine.get(2).toString().equalsIgnoreCase(machines)) {
+                        LOGGER.finest("building: componentMachinePRefix= "+componentMachinePrefix + "_NAME");
                         componentMachinePrefix = componentPrefix + "_MACHINE" + machineCounter;
-
+                        
                         //VRADEP_PB_1_COMPONENT#_MACHINE#_NAME=
-
+                        LOGGER.finest("Putting ["+componentMachinePrefix + "_NAME,"+ machine.get(2).toString().toUpperCase()+"] in map");
                         map.put(componentMachinePrefix + "_NAME", machine.get(2).toString().toUpperCase());
+                        LOGGER.finest("Adding ["+machine.get(3).toString()+"] to networkset");
                         networkSet.add(machine.get(3).toString());
                         break;
                     }
@@ -379,8 +403,8 @@ public class Deployment {
                             map.put(networkMachinePrefix + "_NAME", machine.get(3).toString().toUpperCase());
 
                             //VRADEP_PB_1_COMPONENT#_MACHINE#_NETWORK#_IP#=
-
-                            map.put(networkMachinePrefix + "_IP" + ipCounter, machine.get(4).toString().toUpperCase());
+                            map.put(networkMachinePrefix + "_MAC" + ipCounter, machine.get(4).toString().toUpperCase());        
+                            map.put(networkMachinePrefix + "_IP" + ipCounter, machine.get(5).toString().toUpperCase());
                             ipCounter++;
                             networkCounter++;
                             break;
@@ -388,34 +412,13 @@ public class Deployment {
                     }
 
                 }
-
+                LOGGER.finest("Incrementing machinecounter");
                 machineCounter++;
 
             }
+            componentCounter++;
         }
 
-        /*
-        for( List machine : this.machineList ){
-            //creat map named grup__machine_name__network_name :  network address
-            for ( Object data : machine ){
-                //VRADEP_PB_1_COMPONENT#_NAME=
-                map.put(prefixDep+machine.get(1).toString().toUpperCase()+"_"+
-                                machine.get(1).toString().toUpperCase()+"_"+
-                                machine.get(2).toString().toUpperCase()+"_"+
-                                machine.get(3).toString().toUpperCase(),
-                                    machine.get(4).toString().toUpperCase());
-                //VRADEP_PB_1_COMPONENT#_MACHINE#_NAME=
-                //VRADEP_PB_1_COMPONENT#_MACHINE#_NETWORK#_NAME=
-                //VRADEP_PB_1_COMPONENT#_MACHINE#_NETWORK#_IP#=
-                map.put("VRADEP_"+count+"_"+params.getTenant().toUpperCase() + "_" +
-                                machine.get(1).toString().toUpperCase()+"_"+
-                                machine.get(2).toString().toUpperCase()+"_"+
-                                machine.get(3).toString().toUpperCase(),
-                                machine.get(4).toString().toUpperCase());
-            }
-
-        }
-        */
 
         getLoadBalancerList();
 
@@ -433,12 +436,12 @@ public class Deployment {
         }
 
 
-
+        LOGGER.exiting(this.getClass().getSimpleName(),"getDeploymentComponents()");	
         return map;
     }
 
     public String getDeploymentName(){
-
+        LOGGER.entering(this.getClass().getSimpleName(),"getDeploymentName()");	
         JsonArray contentArray = this.deploymentResources.getAsJsonArray("content");
         for (JsonElement content : contentArray) {
 
@@ -450,6 +453,7 @@ public class Deployment {
             }
         }
         String depName = this.deploymentName;
+        LOGGER.exiting(this.getClass().getSimpleName(),"getDeploymentName()");	
         return depName;
     }
 
@@ -461,7 +465,7 @@ public class Deployment {
 
 
     public void getParentResourceID() throws IOException{
-
+        LOGGER.entering(this.getClass().getSimpleName(),"getParentResourceID()");	
         JsonArray contentArray = this.deploymentResources.getAsJsonArray("content");
         for (JsonElement content : contentArray) {
 
@@ -470,12 +474,13 @@ public class Deployment {
                 this.parentResourceID = content.getAsJsonObject().get("resourceId").getAsString();
             }
         }
+        LOGGER.exiting(this.getClass().getSimpleName(),"getParentResourceID()");	
     }
 
 
 
     public void getParentResourceID(String name) throws IOException{
-
+        LOGGER.entering(this.getClass().getSimpleName(),"getParentResourceID("+name+")");	
         JsonArray contentArray = this.deploymentResources.getAsJsonArray("content");
 
         for (JsonElement content : contentArray) {
@@ -487,6 +492,7 @@ public class Deployment {
                 break;
             }
         }
+        LOGGER.exiting(this.getClass().getSimpleName(),"getParentResourceID("+name+")");	
     }
 
     public String getDestroyURL() throws IOException {
@@ -595,68 +601,7 @@ public class Deployment {
         JsonNode updateNode = mapper.readTree(json2);
 
         returnJSON = parser.parse(merge(mainNode,updateNode).toString()).getAsJsonObject();
-
-        /*Iterator<String> fieldNames = updateNode.fieldNames();
-
-        while (fieldNames.hasNext()) {
-            String updatedFieldName = fieldNames.next();
-            System.out.println("FieldName Next : "+updatedFieldName );
-
-            JsonNode valueToBeUpdated = mainNode.get(updatedFieldName);
-            System.out.println("valueToBeUpdated  : "+valueToBeUpdated.toString() );
-
-            JsonNode updatedValue = updateNode.get(updatedFieldName);
-            System.out.println("updatedValue  : "+updatedValue.toString() );
-
-
-            // If the node is an @ArrayNode
-            if (valueToBeUpdated != null && updatedValue.isArray()) {
-                // running a loop for all elements of the updated ArrayNode
-                for (int i = 0; i < updatedValue.size(); i++) {
-                    JsonNode updatedChildNode = updatedValue.get(i);
-                    // Create a new Node in the node that should be updated, if there was no corresponding node in it
-                    // Use-case - where the updateNode will have a new element in its Array
-                    if (valueToBeUpdated.size() <= i) {
-                        ((ArrayNode) valueToBeUpdated).add(updatedChildNode);
-                    }
-                    // getting reference for the node to be updated
-                    JsonNode childNodeToBeUpdated = valueToBeUpdated.get(i);
-                    updatedValue = mapper.readTree( merge(parser.parse(childNodeToBeUpdated.toString()).getAsJsonObject(),
-                            parser.parse(updatedChildNode.toString()).getAsJsonObject()).toString());
-                }
-                // if the Node is an @ObjectNode
-            } else if (valueToBeUpdated != null && valueToBeUpdated.isObject()) {
-                System.out.println("In ObjectNode "+updatedFieldName);
-                //returnJSON =
-
-                //mainNode = mapper.readTree(merge(parser.parse(valueToBeUpdated.toString()).getAsJsonObject(),
-                //         parser.parse(updatedValue.toString()).getAsJsonObject()).toString());
-                JsonObject test = merge(parser.parse(valueToBeUpdated.toString()).getAsJsonObject(),
-                                parser.parse(updatedValue.toString()).getAsJsonObject());
-                updatedValue = mapper.readTree(test.toString());
-                mainNode = updatedValue;
-
-                System.out.println("Leaving ObjectNode "+updatedFieldName+" with "+updatedValue);
-
-
-            } else {
-                if (mainNode instanceof ObjectNode) {
-                    System.out.println("Updating "+updatedFieldName+" from "+valueToBeUpdated+" to "+updatedValue);
-                    ((ObjectNode) mainNode).replace(updatedFieldName, updatedValue);
-                    System.out.println("JSON after replace : "+mainNode);
-
-                }else{
-                    System.out.println("Error ");
-                    return returnJSON;
-                }
-            }
-            System.out.println("Done with "+updatedFieldName+" JSON "+mainNode);
-
-        }
-
-        returnJSON = parser.parse(mainNode.toString()).getAsJsonObject();
-        System.out.println("Returning with :"+returnJSON);
-        */
+       
         return returnJSON;
 
     }

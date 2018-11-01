@@ -6,6 +6,7 @@ import org.apache.http.HttpResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.logging.Logger;
 import com.google.gson.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -15,6 +16,7 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
  */
 public class Request  {
 
+    private static final Logger LOGGER = Logger.getLogger(Deployment.class.getName());
     private RestClient restclient;
     private PluginParam params;
     private DestroyParam dParams;
@@ -53,7 +55,7 @@ public class Request  {
 
     public Request(PrintStream logger, PluginParam params) throws IOException {
     // Constructor for build and wrapper to create or destroy deployment
-
+        LOGGER.entering(this.getClass().getSimpleName(),"Request(logger,pluginParam)");
         this.params = params;
         this.logger = logger;
 
@@ -90,12 +92,12 @@ public class Request  {
         this.BLUEPRINTS_STATUS_REST = compositionServiceURL + "blueprints/%s/status";
 
 
-
+        LOGGER.exiting(this.getClass().getSimpleName(),"Request(logger,pluginParam)");
     }
 
     public Request(PrintStream logger, DestroyParam dParams) throws IOException {
     // Constructor for post build actions to destroy deployment
-
+        LOGGER.entering(this.getClass().getSimpleName(),"Request(logger,dparam)");
         this.dParams = dParams;
         this.logger = logger;
 
@@ -118,6 +120,7 @@ public class Request  {
         this.RESOURCE_ACTIONS_REQUEST_REST =  catalogServiceApiUrl + "consumer/resources/%s/actions/%s/requests";
         this.RESOURCE_ACTIONS_REST = catalogServiceApiUrl + "consumer/resources/%s/actions/";
         this.RESOURCEVIEW_REST = catalogServiceApiUrl + "consumer/resourceViews/";
+        LOGGER.exiting(this.getClass().getSimpleName(),"Request(logger,dparam)");
 
     }
 
