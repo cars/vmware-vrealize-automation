@@ -11,7 +11,7 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.*;
-import hudson.tasks.BuildStep;
+//import hudson.tasks.BuildStep;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Builder;
@@ -44,7 +44,7 @@ public class VRABlueprintBuildStep extends Builder {
 	}
 
 	public BuildStepMonitor getRequiredMonitorService() {
-		return BuildStepMonitor.BUILD;
+		return BuildStepMonitor.NONE;
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import hudson.Launcher;
 import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.BuildWrapper;
+//import hudson.tasks.BuildWrapper;
 import hudson.tasks.Builder;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -43,7 +43,7 @@ public class VRADeploymentBuildStep  extends Builder {
 	}
 
 	public BuildStepMonitor getRequiredMonitorService() {
-		return BuildStepMonitor.BUILD;
+		return BuildStepMonitor.NONE;
 	}
 
 	@Override

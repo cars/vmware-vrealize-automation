@@ -42,7 +42,7 @@ public class VRADeploymentDestroyPostBuildAction extends Notifier {
 	}
 
 	public BuildStepMonitor getRequiredMonitorService() {
-		return BuildStepMonitor.BUILD;
+		return BuildStepMonitor.NONE;
 	}
 
 	@Override
