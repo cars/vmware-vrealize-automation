@@ -12,7 +12,6 @@ import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildWrapper;
-//import hudson.tasks.BuildWrapper.Environment;
 import hudson.tasks.BuildWrapperDescriptor;
 
 import java.io.IOException;
